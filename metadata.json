@@ -1,0 +1,6 @@
+{
+  "name": "VolumnBook - Case Volume Book Management System",
+  "description": "Offline Windows desktop case-record and volume book management application with SQLite persistence, report generation, and data export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
