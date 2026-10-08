@@ -14,10 +14,11 @@ export class ExportService {
       'SL': index + 1,
       'SERIAL NO': r.serialNo,
       'CASE NO': r.caseNo,
+      'RESULT': r.result || '',
       'JUDGEMENT DATE': toDisplayDate(r.judgementDate),
       'DRAFT DATE': toDisplayDate(r.draftDate),
       'FINAL DATE': toDisplayDate(r.finalDate),
-      'SEND TO SECTION DATE': toDisplayDate(r.sendToSectionDate),
+      'DISPATCH DATE': toDisplayDate(r.dispatchDate || r.sendToSectionDate),
       'REMARKS': r.remarks || '',
       'CREATED BY': r.createdBy,
       'CREATED AT': r.createdAt ? toDisplayDate(r.createdAt.substring(0, 10)) : '',
@@ -30,10 +31,11 @@ export class ExportService {
       { wch: 6 },  // SL
       { wch: 12 }, // SERIAL NO
       { wch: 20 }, // CASE NO
+      { wch: 15 }, // RESULT
       { wch: 16 }, // JUDGEMENT DATE
       { wch: 16 }, // DRAFT DATE
       { wch: 16 }, // FINAL DATE
-      { wch: 22 }, // SEND TO SECTION DATE
+      { wch: 16 }, // DISPATCH DATE
       { wch: 30 }, // REMARKS
       { wch: 16 }, // CREATED BY
       { wch: 14 }, // CREATED AT
@@ -56,14 +58,15 @@ export class ExportService {
     const tableHeaderRow = new TableRow({
       tableHeader: true,
       children: [
-        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'SL', bold: true })] })], width: { size: 6, type: WidthType.PERCENTAGE } }),
-        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Serial No', bold: true })] })], width: { size: 10, type: WidthType.PERCENTAGE } }),
-        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Case No', bold: true })] })], width: { size: 18, type: WidthType.PERCENTAGE } }),
-        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Judgement', bold: true })] })], width: { size: 13, type: WidthType.PERCENTAGE } }),
-        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Draft Date', bold: true })] })], width: { size: 13, type: WidthType.PERCENTAGE } }),
-        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Final Date', bold: true })] })], width: { size: 13, type: WidthType.PERCENTAGE } }),
-        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Send Section', bold: true })] })], width: { size: 13, type: WidthType.PERCENTAGE } }),
-        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Remarks', bold: true })] })], width: { size: 14, type: WidthType.PERCENTAGE } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'SL', bold: true })] })], width: { size: 5, type: WidthType.PERCENTAGE } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Serial No', bold: true })] })], width: { size: 9, type: WidthType.PERCENTAGE } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Case No', bold: true })] })], width: { size: 16, type: WidthType.PERCENTAGE } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Result', bold: true })] })], width: { size: 11, type: WidthType.PERCENTAGE } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Judgement', bold: true })] })], width: { size: 12, type: WidthType.PERCENTAGE } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Draft Date', bold: true })] })], width: { size: 12, type: WidthType.PERCENTAGE } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Final Date', bold: true })] })], width: { size: 12, type: WidthType.PERCENTAGE } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Dispatch Date', bold: true })] })], width: { size: 12, type: WidthType.PERCENTAGE } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Remarks', bold: true })] })], width: { size: 11, type: WidthType.PERCENTAGE } }),
       ],
     });
 
@@ -72,10 +75,11 @@ export class ExportService {
         new TableCell({ children: [new Paragraph(String(i + 1))] }),
         new TableCell({ children: [new Paragraph(String(r.serialNo))] }),
         new TableCell({ children: [new Paragraph(r.caseNo || '')] }),
+        new TableCell({ children: [new Paragraph(r.result || '-')] }),
         new TableCell({ children: [new Paragraph(toDisplayDate(r.judgementDate))] }),
         new TableCell({ children: [new Paragraph(toDisplayDate(r.draftDate))] }),
         new TableCell({ children: [new Paragraph(toDisplayDate(r.finalDate))] }),
-        new TableCell({ children: [new Paragraph(toDisplayDate(r.sendToSectionDate))] }),
+        new TableCell({ children: [new Paragraph(toDisplayDate(r.dispatchDate || r.sendToSectionDate))] }),
         new TableCell({ children: [new Paragraph(r.remarks || '-')] }),
       ],
     }));
@@ -166,15 +170,16 @@ export class ExportService {
     doc.text(`Generated On: ${todayStr} | Total Records: ${records.length}`, doc.internal.pageSize.getWidth() / 2, 33, { align: 'center' });
 
     // Table Data
-    const headers = [['SL', 'Serial', 'Case No', 'Judgement', 'Draft Date', 'Final Date', 'Send Section', 'Remarks']];
+    const headers = [['SL', 'Serial', 'Case No', 'Result', 'Judgement', 'Draft Date', 'Final Date', 'Dispatch Date', 'Remarks']];
     const body = records.map((r, i) => [
       i + 1,
       r.serialNo,
       r.caseNo,
+      r.result || '-',
       toDisplayDate(r.judgementDate),
       toDisplayDate(r.draftDate),
       toDisplayDate(r.finalDate),
-      toDisplayDate(r.sendToSectionDate),
+      toDisplayDate(r.dispatchDate || r.sendToSectionDate),
       r.remarks || '-',
     ]);
 

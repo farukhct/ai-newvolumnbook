@@ -35,7 +35,7 @@ interface Props {
   canDelete?: boolean;
 }
 
-type SortField = 'serialNo' | 'caseNo' | 'judgementDate' | 'draftDate' | 'finalDate' | 'sendToSectionDate' | 'createdAt';
+type SortField = 'serialNo' | 'caseNo' | 'result' | 'judgementDate' | 'draftDate' | 'finalDate' | 'dispatchDate' | 'createdAt';
 
 export const DataGrid: React.FC<Props> = ({
   records,
@@ -61,24 +61,30 @@ export const DataGrid: React.FC<Props> = ({
   // Filter & Search Logic
   const filteredRecords = useMemo(() => {
     return records.filter((r) => {
-      // 1. Text search across Serial No, Case No, Remarks, Dates
+      const dispatchVal = r.dispatchDate || r.sendToSectionDate || '';
+
+      // 1. Text search across Serial No, Case No, Result, Remarks, Dates
       if (searchTerm.trim()) {
         const q = searchTerm.trim().toLowerCase();
         const matchesSerial = String(r.serialNo).includes(q);
         const matchesCase = r.caseNo.toLowerCase().includes(q);
+        const matchesResult = (r.result || '').toLowerCase().includes(q);
         const matchesRemarks = (r.remarks || '').toLowerCase().includes(q);
         const matchesJudgement = toDisplayDate(r.judgementDate).includes(q);
         const matchesDraft = toDisplayDate(r.draftDate).includes(q);
         const matchesFinal = toDisplayDate(r.finalDate).includes(q);
-        const matchesSend = toDisplayDate(r.sendToSectionDate).includes(q);
+        const matchesDispatch = toDisplayDate(dispatchVal).includes(q);
 
-        if (!matchesSerial && !matchesCase && !matchesRemarks && !matchesJudgement && !matchesDraft && !matchesFinal && !matchesSend) {
+        if (!matchesSerial && !matchesCase && !matchesResult && !matchesRemarks && !matchesJudgement && !matchesDraft && !matchesFinal && !matchesDispatch) {
           return false;
         }
       }
 
       // 2. Advanced Criteria
       if (filters.caseNo && !r.caseNo.toLowerCase().includes(filters.caseNo.toLowerCase())) {
+        return false;
+      }
+      if (filters.result && !(r.result || '').toLowerCase().includes(filters.result.toLowerCase())) {
         return false;
       }
       if (filters.judgementFrom && (!r.judgementDate || r.judgementDate < filters.judgementFrom)) {
@@ -99,10 +105,13 @@ export const DataGrid: React.FC<Props> = ({
       if (filters.finalTo && (!r.finalDate || r.finalDate > filters.finalTo)) {
         return false;
       }
-      if (filters.sendSectionFrom && (!r.sendToSectionDate || r.sendToSectionDate < filters.sendSectionFrom)) {
+
+      const dFrom = filters.dispatchFrom || filters.sendSectionFrom;
+      const dTo = filters.dispatchTo || filters.sendSectionTo;
+      if (dFrom && (!dispatchVal || dispatchVal < dFrom)) {
         return false;
       }
-      if (filters.sendSectionTo && (!r.sendToSectionDate || r.sendToSectionDate > filters.sendSectionTo)) {
+      if (dTo && (!dispatchVal || dispatchVal > dTo)) {
         return false;
       }
 
@@ -113,8 +122,8 @@ export const DataGrid: React.FC<Props> = ({
   // Sort
   const sortedRecords = useMemo(() => {
     return [...filteredRecords].sort((a, b) => {
-      let valA: any = a[sortField] || '';
-      let valB: any = b[sortField] || '';
+      let valA: any = sortField === 'dispatchDate' ? (a.dispatchDate || a.sendToSectionDate || '') : (a[sortField] || '');
+      let valB: any = sortField === 'dispatchDate' ? (b.dispatchDate || b.sendToSectionDate || '') : (b[sortField] || '');
 
       if (sortField === 'serialNo') {
         valA = Number(valA) || 0;
@@ -324,6 +333,15 @@ export const DataGrid: React.FC<Props> = ({
                     </div>
                   </th>
                   <th
+                    onClick={() => handleSort('result')}
+                    className="py-3 px-3 cursor-pointer hover:text-white"
+                  >
+                    <div className="flex items-center gap-1">
+                      <span>RESULT</span>
+                      <ArrowUpDown className="w-3 h-3 text-slate-500" />
+                    </div>
+                  </th>
+                  <th
                     onClick={() => handleSort('judgementDate')}
                     className="py-3 px-3 cursor-pointer hover:text-white"
                   >
@@ -351,11 +369,11 @@ export const DataGrid: React.FC<Props> = ({
                     </div>
                   </th>
                   <th
-                    onClick={() => handleSort('sendToSectionDate')}
+                    onClick={() => handleSort('dispatchDate')}
                     className="py-3 px-3 cursor-pointer hover:text-white"
                   >
                     <div className="flex items-center gap-1">
-                      <span>SEND SECTION</span>
+                      <span>DISPATCH DATE</span>
                       <ArrowUpDown className="w-3 h-3 text-slate-500" />
                     </div>
                   </th>
@@ -374,11 +392,20 @@ export const DataGrid: React.FC<Props> = ({
                       <td className="py-2.5 px-3 text-center text-slate-400 font-mono">{sl}</td>
                       <td className="py-2.5 px-3 font-mono font-bold text-white">{r.serialNo}</td>
                       <td className="py-2.5 px-3 font-semibold text-blue-400">{r.caseNo}</td>
+                      <td className="py-2.5 px-3 font-medium text-slate-200">
+                        {r.result ? (
+                          <span className="inline-block px-2 py-0.5 rounded text-[11px] bg-slate-800 text-slate-200 border border-slate-700/80">
+                            {r.result}
+                          </span>
+                        ) : (
+                          '-'
+                        )}
+                      </td>
                       <td className="py-2.5 px-3">{toDisplayDate(r.judgementDate) || '-'}</td>
                       <td className="py-2.5 px-3">{toDisplayDate(r.draftDate) || '-'}</td>
                       <td className="py-2.5 px-3">{toDisplayDate(r.finalDate) || '-'}</td>
-                      <td className="py-2.5 px-3">{toDisplayDate(r.sendToSectionDate) || '-'}</td>
-                      <td className="py-2.5 px-3 max-w-[180px] truncate text-slate-400" title={r.remarks}>
+                      <td className="py-2.5 px-3">{toDisplayDate(r.dispatchDate || r.sendToSectionDate) || '-'}</td>
+                      <td className="py-2.5 px-3 max-w-[160px] truncate text-slate-400" title={r.remarks}>
                         {r.remarks || '-'}
                       </td>
                       <td className="py-2.5 px-3 text-right pr-4">

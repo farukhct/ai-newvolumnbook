@@ -26,6 +26,7 @@ type ReportType =
   | 'judgement_range'
   | 'draft_range'
   | 'final_range'
+  | 'dispatch_range'
   | 'send_section_range'
   | 'case_specific';
 
@@ -63,10 +64,11 @@ export const ReportsView: React.FC<Props> = ({ records, settings, onPrintReport 
         if (toDate) list = list.filter(r => r.finalDate && r.finalDate <= toDate);
         break;
 
+      case 'dispatch_range':
       case 'send_section_range':
-        repTitle = `Send to Section Report (${toDisplayDate(fromDate) || 'Start'} to ${toDisplayDate(toDate) || 'Present'})`;
-        if (fromDate) list = list.filter(r => r.sendToSectionDate && r.sendToSectionDate >= fromDate);
-        if (toDate) list = list.filter(r => r.sendToSectionDate && r.sendToSectionDate <= toDate);
+        repTitle = `Dispatch Date Report (${toDisplayDate(fromDate) || 'Start'} to ${toDisplayDate(toDate) || 'Present'})`;
+        if (fromDate) list = list.filter(r => (r.dispatchDate || r.sendToSectionDate) && (r.dispatchDate || r.sendToSectionDate)! >= fromDate);
+        if (toDate) list = list.filter(r => (r.dispatchDate || r.sendToSectionDate) && (r.dispatchDate || r.sendToSectionDate)! <= toDate);
         break;
 
       case 'case_specific':
@@ -144,7 +146,7 @@ export const ReportsView: React.FC<Props> = ({ records, settings, onPrintReport 
               { id: 'judgement_range', label: 'Judgement Date', icon: Calendar },
               { id: 'draft_range', label: 'Draft Date', icon: Calendar },
               { id: 'final_range', label: 'Final Date', icon: Calendar },
-              { id: 'send_section_range', label: 'Send to Section', icon: Calendar },
+              { id: 'dispatch_range', label: 'Dispatch Date', icon: Calendar },
               { id: 'case_specific', label: 'Case Number', icon: Search },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -237,10 +239,11 @@ export const ReportsView: React.FC<Props> = ({ records, settings, onPrintReport 
                   <th className="py-2.5 px-3 text-center w-12">SL</th>
                   <th className="py-2.5 px-3">Serial No</th>
                   <th className="py-2.5 px-3">Case No</th>
+                  <th className="py-2.5 px-3">Result</th>
                   <th className="py-2.5 px-3">Judgement</th>
                   <th className="py-2.5 px-3">Draft Date</th>
                   <th className="py-2.5 px-3">Final Date</th>
-                  <th className="py-2.5 px-3">Send Section</th>
+                  <th className="py-2.5 px-3">Dispatch Date</th>
                   <th className="py-2.5 px-3">Remarks</th>
                 </tr>
               </thead>
@@ -250,10 +253,11 @@ export const ReportsView: React.FC<Props> = ({ records, settings, onPrintReport 
                     <td className="py-2.5 px-3 text-center text-slate-400 font-mono">{idx + 1}</td>
                     <td className="py-2.5 px-3 font-mono font-bold text-white">{r.serialNo}</td>
                     <td className="py-2.5 px-3 font-semibold text-blue-400">{r.caseNo}</td>
+                    <td className="py-2.5 px-3 font-medium text-slate-200">{r.result || '-'}</td>
                     <td className="py-2.5 px-3">{toDisplayDate(r.judgementDate) || '-'}</td>
                     <td className="py-2.5 px-3">{toDisplayDate(r.draftDate) || '-'}</td>
                     <td className="py-2.5 px-3">{toDisplayDate(r.finalDate) || '-'}</td>
-                    <td className="py-2.5 px-3">{toDisplayDate(r.sendToSectionDate) || '-'}</td>
+                    <td className="py-2.5 px-3">{toDisplayDate(r.dispatchDate || r.sendToSectionDate) || '-'}</td>
                     <td className="py-2.5 px-3 max-w-[200px] truncate text-slate-400">{r.remarks || '-'}</td>
                   </tr>
                 ))}

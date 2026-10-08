@@ -2,10 +2,12 @@ export interface VolumeRecord {
   id: string;
   serialNo: number;
   caseNo: string;
+  result: string; // Judgement/Case Result (e.g. Allowed, Dismissed, Disposed, etc.)
   judgementDate: string; // YYYY-MM-DD
   draftDate: string; // YYYY-MM-DD
   finalDate: string; // YYYY-MM-DD
-  sendToSectionDate: string; // YYYY-MM-DD
+  dispatchDate: string; // YYYY-MM-DD (formerly Send to Section Date)
+  sendToSectionDate?: string; // Legacy field compatibility
   remarks: string;
   createdAt: string; // ISO 8601
   updatedAt: string; // ISO 8601
@@ -44,6 +46,7 @@ export interface AppSettings {
 export interface FilterCriteria {
   caseNo?: string;
   serialNo?: string;
+  result?: string;
   searchTerm?: string;
   judgementFrom?: string;
   judgementTo?: string;
@@ -51,8 +54,10 @@ export interface FilterCriteria {
   draftTo?: string;
   finalFrom?: string;
   finalTo?: string;
-  sendSectionFrom?: string;
-  sendSectionTo?: string;
+  dispatchFrom?: string;
+  dispatchTo?: string;
+  sendSectionFrom?: string; // Compatibility
+  sendSectionTo?: string;   // Compatibility
   createdBy?: string;
 }
 
@@ -62,7 +67,8 @@ export interface DashboardStats {
   addedThisMonth: number;
   draftPending: number;
   finalPending: number;
-  sentToSection: number;
+  dispatched: number;
+  sentToSection?: number;
   latestRecords: VolumeRecord[];
 }
 

@@ -81,8 +81,12 @@ export const PrintModal: React.FC<Props> = ({
                       <td className="p-3 font-mono font-bold text-sm text-blue-900">{singleRecord.serialNo}</td>
                     </tr>
                     <tr className="border-b border-slate-200">
-                      <td className="bg-slate-100 p-3 font-bold text-slate-700">CASE NUMBER</td>
+                      <td className="bg-slate-100 p-3 font-bold w-1/3 text-slate-700">CASE NUMBER</td>
                       <td className="p-3 font-bold text-slate-900">{singleRecord.caseNo}</td>
+                    </tr>
+                    <tr className="border-b border-slate-200">
+                      <td className="bg-slate-100 p-3 font-bold text-slate-700">CASE RESULT</td>
+                      <td className="p-3 font-semibold text-slate-900">{singleRecord.result || 'Pending / None'}</td>
                     </tr>
                     <tr className="border-b border-slate-200">
                       <td className="bg-slate-100 p-3 font-bold text-slate-700">JUDGEMENT DATE</td>
@@ -97,8 +101,8 @@ export const PrintModal: React.FC<Props> = ({
                       <td className="p-3">{toDisplayDate(singleRecord.finalDate) || 'Pending'}</td>
                     </tr>
                     <tr className="border-b border-slate-200">
-                      <td className="bg-slate-100 p-3 font-bold text-slate-700">SEND TO SECTION DATE</td>
-                      <td className="p-3">{toDisplayDate(singleRecord.sendToSectionDate) || 'Pending'}</td>
+                      <td className="bg-slate-100 p-3 font-bold text-slate-700">DISPATCH DATE</td>
+                      <td className="p-3">{toDisplayDate(singleRecord.dispatchDate || singleRecord.sendToSectionDate) || 'Pending'}</td>
                     </tr>
                     <tr>
                       <td className="bg-slate-100 p-3 font-bold text-slate-700 align-top">REMARKS</td>
@@ -130,10 +134,11 @@ export const PrintModal: React.FC<Props> = ({
                     <th className="border border-slate-400 p-1.5 text-center w-8">SL</th>
                     <th className="border border-slate-400 p-1.5 text-center w-14">Serial No</th>
                     <th className="border border-slate-400 p-1.5 text-left">Case No</th>
+                    <th className="border border-slate-400 p-1.5 text-left">Result</th>
                     <th className="border border-slate-400 p-1.5 text-center">Judgement</th>
                     <th className="border border-slate-400 p-1.5 text-center">Draft Date</th>
                     <th className="border border-slate-400 p-1.5 text-center">Final Date</th>
-                    <th className="border border-slate-400 p-1.5 text-center">Send Section</th>
+                    <th className="border border-slate-400 p-1.5 text-center">Dispatch Date</th>
                     <th className="border border-slate-400 p-1.5 text-left">Remarks</th>
                   </tr>
                 </thead>
@@ -143,16 +148,17 @@ export const PrintModal: React.FC<Props> = ({
                       <td className="border border-slate-300 p-1.5 text-center font-mono">{i + 1}</td>
                       <td className="border border-slate-300 p-1.5 text-center font-mono font-semibold">{r.serialNo}</td>
                       <td className="border border-slate-300 p-1.5 font-medium">{r.caseNo}</td>
+                      <td className="border border-slate-300 p-1.5 font-medium">{r.result || '-'}</td>
                       <td className="border border-slate-300 p-1.5 text-center">{toDisplayDate(r.judgementDate) || '-'}</td>
                       <td className="border border-slate-300 p-1.5 text-center">{toDisplayDate(r.draftDate) || '-'}</td>
                       <td className="border border-slate-300 p-1.5 text-center">{toDisplayDate(r.finalDate) || '-'}</td>
-                      <td className="border border-slate-300 p-1.5 text-center">{toDisplayDate(r.sendToSectionDate) || '-'}</td>
+                      <td className="border border-slate-300 p-1.5 text-center">{toDisplayDate(r.dispatchDate || r.sendToSectionDate) || '-'}</td>
                       <td className="border border-slate-300 p-1.5 truncate max-w-[140px]">{r.remarks || '-'}</td>
                     </tr>
                   ))}
                   {recordsList.length === 0 && (
                     <tr>
-                      <td colSpan={8} className="p-4 text-center text-slate-500 italic">
+                      <td colSpan={9} className="p-4 text-center text-slate-500 italic">
                         No volume records available in this report view.
                       </td>
                     </tr>

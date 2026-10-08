@@ -60,6 +60,18 @@ export const FilterDrawer: React.FC<Props> = ({
             />
           </div>
 
+          {/* Result Filter */}
+          <div>
+            <label className="block text-slate-300 font-medium mb-1">Result / Decision</label>
+            <input
+              type="text"
+              placeholder="e.g. Allowed, Dismissed, Disposed"
+              value={filters.result || ''}
+              onChange={(e) => handleChange('result', e.target.value)}
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            />
+          </div>
+
           {/* Judgement Date Range */}
           <div className="p-3 bg-slate-800/40 border border-slate-800 rounded-lg space-y-2">
             <span className="font-semibold text-slate-300 block">Judgement Date Range (dd-mm-yyyy)</span>
@@ -129,23 +141,35 @@ export const FilterDrawer: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Send To Section Range */}
+          {/* Dispatch Date Range */}
           <div className="p-3 bg-slate-800/40 border border-slate-800 rounded-lg space-y-2">
-            <span className="font-semibold text-slate-300 block">Send To Section Date Range (dd-mm-yyyy)</span>
+            <span className="font-semibold text-slate-300 block">Dispatch Date Range (dd-mm-yyyy)</span>
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-[10px] text-slate-400 block mb-0.5">From Date</label>
                 <DatePicker
-                  value={filters.sendSectionFrom || ''}
-                  onChange={(val) => handleChange('sendSectionFrom', val)}
+                  value={filters.dispatchFrom || filters.sendSectionFrom || ''}
+                  onChange={(val) => {
+                    onFilterChange({
+                      ...filters,
+                      dispatchFrom: val,
+                      sendSectionFrom: val,
+                    });
+                  }}
                   placeholder="dd-mm-yyyy"
                 />
               </div>
               <div>
                 <label className="text-[10px] text-slate-400 block mb-0.5">To Date</label>
                 <DatePicker
-                  value={filters.sendSectionTo || ''}
-                  onChange={(val) => handleChange('sendSectionTo', val)}
+                  value={filters.dispatchTo || filters.sendSectionTo || ''}
+                  onChange={(val) => {
+                    onFilterChange({
+                      ...filters,
+                      dispatchTo: val,
+                      sendSectionTo: val,
+                    });
+                  }}
                   placeholder="dd-mm-yyyy"
                 />
               </div>

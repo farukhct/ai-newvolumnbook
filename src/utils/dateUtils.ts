@@ -39,7 +39,7 @@ export function validateDateSequence(
   judgementDate?: string,
   draftDate?: string,
   finalDate?: string,
-  sendToSectionDate?: string
+  dispatchDate?: string
 ): { isValid: boolean; warnings: string[] } {
   const warnings: string[] = [];
 
@@ -51,12 +51,12 @@ export function validateDateSequence(
     warnings.push(`Final Date (${toDisplayDate(finalDate)}) is earlier than Draft Date (${toDisplayDate(draftDate)}).`);
   }
 
-  if (finalDate && sendToSectionDate && sendToSectionDate < finalDate) {
-    warnings.push(`Send to Section Date (${toDisplayDate(sendToSectionDate)}) is earlier than Final Date (${toDisplayDate(finalDate)}).`);
+  if (finalDate && dispatchDate && dispatchDate < finalDate) {
+    warnings.push(`Dispatch Date (${toDisplayDate(dispatchDate)}) is earlier than Final Date (${toDisplayDate(finalDate)}).`);
   }
 
-  if (judgementDate && sendToSectionDate && sendToSectionDate < judgementDate) {
-    warnings.push(`Send to Section Date (${toDisplayDate(sendToSectionDate)}) is earlier than Judgement Date (${toDisplayDate(judgementDate)}).`);
+  if (judgementDate && dispatchDate && dispatchDate < judgementDate) {
+    warnings.push(`Dispatch Date (${toDisplayDate(dispatchDate)}) is earlier than Judgement Date (${toDisplayDate(judgementDate)}).`);
   }
 
   return {

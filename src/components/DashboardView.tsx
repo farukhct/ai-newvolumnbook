@@ -49,8 +49,8 @@ export const DashboardView: React.FC<Props> = ({
     r => Boolean(r.draftDate) && !r.finalDate
   ).length;
 
-  const sentToSection = records.filter(
-    r => Boolean(r.sendToSectionDate)
+  const dispatched = records.filter(
+    r => Boolean(r.dispatchDate || r.sendToSectionDate)
   ).length;
 
   // Recent records sorted by creation or updated date
@@ -148,15 +148,15 @@ export const DashboardView: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Sent to Section */}
+        {/* Dispatched */}
         <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-medium">Sent Section</span>
+            <span className="text-xs font-medium">Dispatched</span>
             <Send className="w-4 h-4 text-cyan-400" />
           </div>
           <div>
-            <div className="text-2xl font-bold text-cyan-400 font-mono">{sentToSection}</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Dispatched to section</div>
+            <div className="text-2xl font-bold text-cyan-400 font-mono">{dispatched}</div>
+            <div className="text-[10px] text-slate-400 mt-0.5">Dispatched cases</div>
           </div>
         </div>
       </div>
@@ -176,9 +176,9 @@ export const DashboardView: React.FC<Props> = ({
           <div className="space-y-3">
             <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden flex">
               <div
-                style={{ width: `${totalRecords ? (sentToSection / totalRecords) * 100 : 0}%` }}
+                style={{ width: `${totalRecords ? (dispatched / totalRecords) * 100 : 0}%` }}
                 className="bg-cyan-500 h-full"
-                title={`Sent to Section: ${sentToSection}`}
+                title={`Dispatched: ${dispatched}`}
               />
               <div
                 style={{ width: `${totalRecords ? (finalPending / totalRecords) * 100 : 0}%` }}
@@ -194,7 +194,7 @@ export const DashboardView: React.FC<Props> = ({
             <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300">
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-cyan-500"></span>
-                <span>Sent to Section ({sentToSection})</span>
+                <span>Dispatched ({dispatched})</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
@@ -241,10 +241,11 @@ export const DashboardView: React.FC<Props> = ({
                 <tr>
                   <th className="py-2.5 px-4">Serial No</th>
                   <th className="py-2.5 px-4">Case No</th>
+                  <th className="py-2.5 px-4">Result</th>
                   <th className="py-2.5 px-4">Judgement</th>
                   <th className="py-2.5 px-4">Draft Date</th>
                   <th className="py-2.5 px-4">Final Date</th>
-                  <th className="py-2.5 px-4">Send Section</th>
+                  <th className="py-2.5 px-4">Dispatch Date</th>
                   <th className="py-2.5 px-4">Action</th>
                 </tr>
               </thead>
@@ -257,10 +258,11 @@ export const DashboardView: React.FC<Props> = ({
                   >
                     <td className="py-2.5 px-4 font-mono font-medium text-white">{r.serialNo}</td>
                     <td className="py-2.5 px-4 font-medium text-blue-400">{r.caseNo}</td>
+                    <td className="py-2.5 px-4 font-medium text-slate-200">{r.result || '-'}</td>
                     <td className="py-2.5 px-4">{toDisplayDate(r.judgementDate) || '-'}</td>
                     <td className="py-2.5 px-4">{toDisplayDate(r.draftDate) || '-'}</td>
                     <td className="py-2.5 px-4">{toDisplayDate(r.finalDate) || '-'}</td>
-                    <td className="py-2.5 px-4">{toDisplayDate(r.sendToSectionDate) || '-'}</td>
+                    <td className="py-2.5 px-4">{toDisplayDate(r.dispatchDate || r.sendToSectionDate) || '-'}</td>
                     <td className="py-2.5 px-4">
                       <span className="text-[11px] text-blue-400 hover:underline">View Docket</span>
                     </td>

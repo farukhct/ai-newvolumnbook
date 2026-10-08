@@ -36,6 +36,11 @@ export const RecordDetailModal: React.FC<Props> = ({
             <div>
               <h2 className="text-base font-bold text-white flex items-center gap-2">
                 <span>Case Docket: {record.caseNo}</span>
+                {record.result && (
+                  <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">
+                    {record.result}
+                  </span>
+                )}
               </h2>
               <span className="text-xs text-slate-400">Volume Book Record Details</span>
             </div>
@@ -50,6 +55,14 @@ export const RecordDetailModal: React.FC<Props> = ({
 
         {/* Content */}
         <div className="p-6 space-y-4 text-xs">
+          {/* Result Banner if available */}
+          <div className="p-3 bg-slate-950/70 border border-slate-800 rounded-lg flex items-center justify-between">
+            <span className="text-slate-400 font-medium">Case Decision / Result:</span>
+            <span className="font-semibold text-white text-sm font-mono">
+              {record.result || 'Not Recorded'}
+            </span>
+          </div>
+
           {/* Milestone Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             <div className="bg-slate-800/70 border border-slate-700/80 p-2.5 rounded-lg">
@@ -74,9 +87,9 @@ export const RecordDetailModal: React.FC<Props> = ({
             </div>
 
             <div className="bg-slate-800/70 border border-slate-700/80 p-2.5 rounded-lg">
-              <span className="text-[10px] text-slate-400 uppercase font-medium block mb-1">Send to Section</span>
+              <span className="text-[10px] text-slate-400 uppercase font-medium block mb-1">Dispatch Date</span>
               <span className="text-sm font-semibold text-cyan-300 block">
-                {toDisplayDate(record.sendToSectionDate) || 'Pending'}
+                {toDisplayDate(record.dispatchDate || record.sendToSectionDate) || 'Pending'}
               </span>
             </div>
           </div>

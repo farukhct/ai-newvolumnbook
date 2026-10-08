@@ -240,7 +240,13 @@ export class StorageService {
   public static getRecords(): VolumeRecord[] {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.RECORDS);
-      return data ? JSON.parse(data) : [];
+      if (!data) return [];
+      const parsed: any[] = JSON.parse(data);
+      return parsed.map((r) => ({
+        ...r,
+        result: r.result || '',
+        dispatchDate: r.dispatchDate || r.sendToSectionDate || '',
+      }));
     } catch {
       return [];
     }
@@ -272,10 +278,12 @@ export class StorageService {
   public static createRecord(recordData: {
     serialNo?: number;
     caseNo: string;
+    result?: string;
     judgementDate: string;
     draftDate: string;
     finalDate: string;
-    sendToSectionDate: string;
+    dispatchDate?: string;
+    sendToSectionDate?: string;
     remarks: string;
   }, username: string): VolumeRecord {
     const records = this.getRecords();
@@ -289,15 +297,18 @@ export class StorageService {
       throw new Error('Case No is required.');
     }
 
+    const effectiveDispatchDate = (recordData.dispatchDate || recordData.sendToSectionDate || '').trim();
     const now = new Date().toISOString();
     const newRecord: VolumeRecord = {
       id: 'rec_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       serialNo: finalSerialNo,
       caseNo: recordData.caseNo.trim(),
+      result: (recordData.result || '').trim(),
       judgementDate: recordData.judgementDate?.trim() || '',
       draftDate: recordData.draftDate?.trim() || '',
       finalDate: recordData.finalDate?.trim() || '',
-      sendToSectionDate: recordData.sendToSectionDate?.trim() || '',
+      dispatchDate: effectiveDispatchDate,
+      sendToSectionDate: effectiveDispatchDate,
       remarks: recordData.remarks || '',
       createdAt: now,
       updatedAt: now,
@@ -322,10 +333,19 @@ export class StorageService {
     }
 
     const existing = records[index];
+    const effectiveDispatch = updateData.dispatchDate !== undefined 
+      ? updateData.dispatchDate 
+      : updateData.sendToSectionDate !== undefined 
+      ? updateData.sendToSectionDate 
+      : existing.dispatchDate;
+
     const updated: VolumeRecord = {
       ...existing,
       ...updateData,
       caseNo: updateData.caseNo ? updateData.caseNo.trim() : existing.caseNo,
+      result: updateData.result !== undefined ? updateData.result.trim() : existing.result,
+      dispatchDate: effectiveDispatch || '',
+      sendToSectionDate: effectiveDispatch || '',
       updatedAt: new Date().toISOString(),
       updatedBy: username || 'System',
     };
@@ -511,7 +531,8 @@ export class StorageService {
       if (r.judgementDate && !isoDateRegex.test(r.judgementDate)) dateIssues++;
       if (r.draftDate && !isoDateRegex.test(r.draftDate)) dateIssues++;
       if (r.finalDate && !isoDateRegex.test(r.finalDate)) dateIssues++;
-      if (r.sendToSectionDate && !isoDateRegex.test(r.sendToSectionDate)) dateIssues++;
+      const disp = r.dispatchDate || r.sendToSectionDate;
+      if (disp && !isoDateRegex.test(disp)) dateIssues++;
     }
 
     if (dateIssues > 0) {

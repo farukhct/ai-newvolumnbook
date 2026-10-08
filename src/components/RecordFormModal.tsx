@@ -27,10 +27,11 @@ export const RecordFormModal: React.FC<Props> = ({
 
   const [serialNo, setSerialNo] = useState<number>(1);
   const [caseNo, setCaseNo] = useState('');
+  const [result, setResult] = useState('');
   const [judgementDate, setJudgementDate] = useState('');
   const [draftDate, setDraftDate] = useState('');
   const [finalDate, setFinalDate] = useState('');
-  const [sendToSectionDate, setSendToSectionDate] = useState('');
+  const [dispatchDate, setDispatchDate] = useState('');
   const [remarks, setRemarks] = useState('');
 
   // Continuous / Multi-entry state
@@ -50,21 +51,23 @@ export const RecordFormModal: React.FC<Props> = ({
       if (recordToEdit) {
         setSerialNo(recordToEdit.serialNo);
         setCaseNo(recordToEdit.caseNo);
+        setResult(recordToEdit.result || '');
         setJudgementDate(recordToEdit.judgementDate || '');
         setDraftDate(recordToEdit.draftDate || '');
         setFinalDate(recordToEdit.finalDate || '');
-        setSendToSectionDate(recordToEdit.sendToSectionDate || '');
+        setDispatchDate(recordToEdit.dispatchDate || recordToEdit.sendToSectionDate || '');
         setRemarks(recordToEdit.remarks || '');
       } else {
         // Automatic serial number generation
         const nextSerial = StorageService.getNextSerialNo();
         setSerialNo(nextSerial);
         setCaseNo('');
+        setResult('');
         if (!keepDatesForNext) {
           setJudgementDate('');
           setDraftDate('');
           setFinalDate('');
-          setSendToSectionDate('');
+          setDispatchDate('');
         }
         setRemarks('');
       }
@@ -111,10 +114,10 @@ export const RecordFormModal: React.FC<Props> = ({
       judgementDate || undefined,
       draftDate || undefined,
       finalDate || undefined,
-      sendToSectionDate || undefined
+      dispatchDate || undefined
     );
     setSequenceWarnings(validation.warnings);
-  }, [caseNo, judgementDate, draftDate, finalDate, sendToSectionDate, isOpen, recordToEdit]);
+  }, [caseNo, judgementDate, draftDate, finalDate, dispatchDate, isOpen, recordToEdit]);
 
   const handleSubmit = (saveAndNew = false) => {
     setError(null);
@@ -144,10 +147,12 @@ export const RecordFormModal: React.FC<Props> = ({
           {
             serialNo,
             caseNo: caseNo.trim(),
+            result: result.trim(),
             judgementDate,
             draftDate,
             finalDate,
-            sendToSectionDate,
+            dispatchDate,
+            sendToSectionDate: dispatchDate,
             remarks,
           },
           currentUsername
@@ -157,10 +162,12 @@ export const RecordFormModal: React.FC<Props> = ({
           {
             serialNo,
             caseNo: caseNo.trim(),
+            result: result.trim(),
             judgementDate,
             draftDate,
             finalDate,
-            sendToSectionDate,
+            dispatchDate,
+            sendToSectionDate: dispatchDate,
             remarks,
           },
           currentUsername
@@ -177,6 +184,7 @@ export const RecordFormModal: React.FC<Props> = ({
         const nextSerial = StorageService.getNextSerialNo();
         setSerialNo(nextSerial);
         setCaseNo('');
+        setResult('');
         setRemarks('');
         
         // If keepDatesForNext is false, also clear dates
@@ -184,7 +192,7 @@ export const RecordFormModal: React.FC<Props> = ({
           setJudgementDate('');
           setDraftDate('');
           setFinalDate('');
-          setSendToSectionDate('');
+          setDispatchDate('');
         }
 
         // Refocus Case No immediately so user can keep typing!
@@ -210,18 +218,21 @@ export const RecordFormModal: React.FC<Props> = ({
   // Quick template for testing multiple records easily
   const handleQuickTestEntry = () => {
     const randomCaseTypes = ['WP', 'CRL', 'CA', 'MAT', 'CR', 'CRA'];
+    const sampleResults = ['Allowed', 'Dismissed', 'Disposed of', 'Rule Absolute', 'Discharged', 'Compromised'];
     const prefix = randomCaseTypes[Math.floor(Math.random() * randomCaseTypes.length)];
     const randomNum = Math.floor(100 + Math.random() * 900);
+    const chosenResult = sampleResults[Math.floor(Math.random() * sampleResults.length)];
     const year = 2026;
     
     setCaseNo(`${prefix}-${randomNum}/${year}`);
+    setResult(chosenResult);
     
     const today = getTodayIso();
     setJudgementDate(today);
     setDraftDate(today);
     setFinalDate(today);
-    setSendToSectionDate(today);
-    setRemarks(`Verified volume entry for ${prefix}-${randomNum} (নথিভুক্ত)`);
+    setDispatchDate(today);
+    setRemarks(`Verified volume entry for ${prefix}-${randomNum} (${chosenResult})`);
     
     setTimeout(() => {
       caseNoInputRef.current?.focus();
@@ -322,11 +333,11 @@ export const RecordFormModal: React.FC<Props> = ({
             </div>
           )}
 
-          {/* Row 1: SERIAL NO & CASE NO */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
+          {/* Row 1: SERIAL NO, CASE NO, and RESULT */}
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
+            <div className="sm:col-span-3">
               <label className="block text-slate-300 font-medium mb-1">
-                Serial No {isAdmin ? <span className="text-blue-400">(Admin Override)</span> : '(Auto)'}
+                Serial No {isAdmin ? <span className="text-blue-400">(Admin)</span> : '(Auto)'}
               </label>
               <input
                 type="number"
@@ -336,10 +347,10 @@ export const RecordFormModal: React.FC<Props> = ({
                 onChange={(e) => setSerialNo(parseInt(e.target.value) || 1)}
                 className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-70"
               />
-              <span className="text-[10px] text-slate-400">Unique case book index</span>
+              <span className="text-[10px] text-slate-400">1. Serial No</span>
             </div>
 
-            <div className="sm:col-span-2">
+            <div className="sm:col-span-5">
               <label className="block text-slate-300 font-medium mb-1">
                 Case No <span className="text-rose-400">*</span>
               </label>
@@ -352,7 +363,33 @@ export const RecordFormModal: React.FC<Props> = ({
                 onChange={(e) => setCaseNo(e.target.value)}
                 className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <span className="text-[10px] text-slate-400">Official court or police case identification</span>
+              <span className="text-[10px] text-slate-400">2. Case identification</span>
+            </div>
+
+            <div className="sm:col-span-4">
+              <label className="block text-slate-300 font-medium mb-1">
+                Result <span className="text-slate-400 font-normal">(Decision/Order)</span>
+              </label>
+              <input
+                type="text"
+                list="result-suggestions"
+                placeholder="Allowed / Dismissed / Disposed"
+                value={result}
+                onChange={(e) => setResult(e.target.value)}
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <datalist id="result-suggestions">
+                <option value="Allowed" />
+                <option value="Dismissed" />
+                <option value="Disposed of" />
+                <option value="Rule Absolute" />
+                <option value="Discharged" />
+                <option value="Compromised" />
+                <option value="Decreed" />
+                <option value="Rejected" />
+                <option value="Pending" />
+              </datalist>
+              <span className="text-[10px] text-slate-400">3. Case outcome / result</span>
             </div>
           </div>
 
@@ -361,7 +398,7 @@ export const RecordFormModal: React.FC<Props> = ({
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-slate-300 font-medium text-xs">
-                  Judgement Date <span className="text-slate-400 font-normal">(dd-mm-yyyy)</span>
+                  4. Judgement Date <span className="text-slate-400 font-normal">(dd-mm-yyyy)</span>
                 </label>
                 <button
                   type="button"
@@ -381,7 +418,7 @@ export const RecordFormModal: React.FC<Props> = ({
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-slate-300 font-medium text-xs">
-                  Draft Date <span className="text-slate-400 font-normal">(dd-mm-yyyy)</span>
+                  5. Draft Date <span className="text-slate-400 font-normal">(dd-mm-yyyy)</span>
                 </label>
                 <button
                   type="button"
@@ -399,12 +436,12 @@ export const RecordFormModal: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Row 3: FINAL DATE & SEND TO SECTION DATE */}
+          {/* Row 3: FINAL DATE & DISPATCH DATE */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-slate-300 font-medium text-xs">
-                  Final Date <span className="text-slate-400 font-normal">(dd-mm-yyyy)</span>
+                  6. Final Date <span className="text-slate-400 font-normal">(dd-mm-yyyy)</span>
                 </label>
                 <button
                   type="button"
@@ -424,19 +461,19 @@ export const RecordFormModal: React.FC<Props> = ({
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-slate-300 font-medium text-xs">
-                  Send To Section Date <span className="text-slate-400 font-normal">(dd-mm-yyyy)</span>
+                  7. Dispatch Date <span className="text-slate-400 font-normal">(dd-mm-yyyy)</span>
                 </label>
                 <button
                   type="button"
-                  onClick={() => setSendToSectionDate(getTodayIso())}
+                  onClick={() => setDispatchDate(getTodayIso())}
                   className="text-[10px] text-blue-400 hover:text-blue-300 font-medium"
                 >
                   Set Today
                 </button>
               </div>
               <DatePicker
-                value={sendToSectionDate}
-                onChange={setSendToSectionDate}
+                value={dispatchDate}
+                onChange={setDispatchDate}
                 placeholder="dd-mm-yyyy"
               />
             </div>
@@ -485,10 +522,11 @@ export const RecordFormModal: React.FC<Props> = ({
               type="button"
               onClick={() => {
                 setCaseNo('');
+                setResult('');
                 setJudgementDate('');
                 setDraftDate('');
                 setFinalDate('');
-                setSendToSectionDate('');
+                setDispatchDate('');
                 setRemarks('');
                 caseNoInputRef.current?.focus();
               }}
