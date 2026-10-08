@@ -168,7 +168,7 @@ export const DatePicker: React.FC<Props> = ({
   return (
     <div className={`relative ${className}`} ref={containerRef}>
       {label && (
-        <label className="block text-slate-300 font-medium mb-1 text-xs">{label}</label>
+        <label className="block text-slate-700 font-semibold mb-1 text-xs">{label}</label>
       )}
 
       {/* Input box showing dd-mm-yyyy */}
@@ -179,7 +179,7 @@ export const DatePicker: React.FC<Props> = ({
           onChange={handleInputChange}
           placeholder={placeholder}
           maxLength={10}
-          className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-3 pr-16 py-2 text-white font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-500"
+          className="w-full bg-slate-50 border border-slate-300 rounded pl-3 pr-16 py-2 text-slate-900 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-[#006a4e] focus:border-[#006a4e] placeholder-slate-400"
         />
 
         <div className="absolute right-1.5 flex items-center gap-1">
@@ -187,7 +187,7 @@ export const DatePicker: React.FC<Props> = ({
             <button
               type="button"
               onClick={handleClear}
-              className="p-1 rounded text-slate-400 hover:text-rose-400 hover:bg-slate-700/60 transition-colors"
+              className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-slate-200 transition-colors cursor-pointer"
               title="Clear Date"
             >
               <X className="w-3.5 h-3.5" />
@@ -197,37 +197,37 @@ export const DatePicker: React.FC<Props> = ({
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className={`p-1.5 rounded transition-colors ${
+            className={`p-1.5 rounded transition-colors cursor-pointer ${
               isOpen
-                ? 'bg-blue-600 text-white'
-                : 'text-slate-400 hover:text-white hover:bg-slate-700/60'
+                ? 'bg-[#006a4e] text-white'
+                : 'text-slate-500 hover:text-[#006a4e] hover:bg-emerald-50'
             }`}
             title="Open dd-mm-yyyy Calendar"
           >
-            <CalendarIcon className="w-4 h-4 text-blue-400" />
+            <CalendarIcon className="w-4 h-4 text-[#006a4e]" />
           </button>
         </div>
       </div>
 
       {/* Calendar Dropdown */}
       {isOpen && (
-        <div className="absolute z-50 mt-1 left-0 w-64 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-3 text-slate-100 select-none animate-scale-up">
+        <div className="absolute z-50 mt-1 left-0 w-64 bg-white border border-slate-300 rounded-lg shadow-xl p-3 text-slate-800 select-none animate-scale-up">
           {/* Calendar Header */}
-          <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200">
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="p-1 rounded hover:bg-slate-800 text-slate-300 hover:text-white"
+              className="p-1 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-1 text-xs font-semibold text-white">
+            <div className="flex items-center gap-1 text-xs font-semibold text-slate-900">
               <span>{MONTH_NAMES[viewMonth]}</span>
               <select
                 value={viewYear}
                 onChange={(e) => setViewYear(Number(e.target.value))}
-                className="bg-slate-800 border border-slate-700 rounded px-1 py-0.5 text-xs text-white focus:outline-none"
+                className="bg-slate-50 border border-slate-300 rounded px-1 py-0.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#006a4e] cursor-pointer"
               >
                 {Array.from({ length: 41 }, (_, i) => 2000 + i).map((y) => (
                   <option key={y} value={y}>{y}</option>
@@ -238,14 +238,14 @@ export const DatePicker: React.FC<Props> = ({
             <button
               type="button"
               onClick={handleNextMonth}
-              className="p-1 rounded hover:bg-slate-800 text-slate-300 hover:text-white"
+              className="p-1 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 cursor-pointer"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
           {/* Weekday Labels */}
-          <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-slate-400 mb-1">
+          <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-slate-500 mb-1">
             {DAY_NAMES.map((d) => (
               <span key={d}>{d}</span>
             ))}
@@ -269,17 +269,17 @@ export const DatePicker: React.FC<Props> = ({
                   type="button"
                   key={day}
                   onClick={() => handleSelectDay(day)}
-                  className={`p-1.5 rounded-md font-mono text-xs transition-colors flex items-center justify-center relative ${
+                  className={`p-1.5 rounded font-mono text-xs transition-colors flex items-center justify-center relative cursor-pointer ${
                     selected
-                      ? 'bg-blue-600 text-white font-bold shadow-sm'
+                      ? 'bg-[#006a4e] text-white font-bold shadow-xs'
                       : current
-                      ? 'bg-blue-950/60 text-blue-300 border border-blue-500/40 hover:bg-blue-900/40'
-                      : 'hover:bg-slate-800 text-slate-200'
+                      ? 'bg-emerald-50 text-[#006a4e] font-bold border border-emerald-300 hover:bg-emerald-100'
+                      : 'hover:bg-slate-100 text-slate-700'
                   }`}
                 >
                   {day}
                   {current && !selected && (
-                    <span className="w-1 h-1 rounded-full bg-blue-400 absolute bottom-0.5" />
+                    <span className="w-1 h-1 rounded-full bg-[#006a4e] absolute bottom-0.5" />
                   )}
                 </button>
               );
@@ -287,19 +287,19 @@ export const DatePicker: React.FC<Props> = ({
           </div>
 
           {/* Quick Footer Controls */}
-          <div className="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px]">
+          <div className="mt-3 pt-2 border-t border-slate-200 flex items-center justify-between text-[11px]">
             <button
               type="button"
               onClick={handleSetToday}
-              className="text-blue-400 hover:text-blue-300 font-medium"
+              className="text-[#006a4e] hover:text-[#00523c] font-semibold cursor-pointer"
             >
               Today
             </button>
-            <span className="text-[10px] text-slate-500 font-mono">Format: dd-mm-yyyy</span>
+            <span className="text-[10px] text-slate-400 font-mono">dd-mm-yyyy</span>
             <button
               type="button"
               onClick={handleClear}
-              className="text-rose-400 hover:text-rose-300 font-medium"
+              className="text-rose-600 hover:text-rose-800 font-semibold cursor-pointer"
             >
               Clear
             </button>

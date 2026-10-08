@@ -66,15 +66,15 @@ export const ReportsView: React.FC<Props> = ({ records, settings, onPrintReport 
 
       case 'dispatch_range':
       case 'send_section_range':
-        repTitle = `Dispatch Date Report (${toDisplayDate(fromDate) || 'Start'} to ${toDisplayDate(toDate) || 'Present'})`;
+        repTitle = `Dispatched to Section Report (${toDisplayDate(fromDate) || 'Start'} to ${toDisplayDate(toDate) || 'Present'})`;
         if (fromDate) list = list.filter(r => (r.dispatchDate || r.sendToSectionDate) && (r.dispatchDate || r.sendToSectionDate)! >= fromDate);
         if (toDate) list = list.filter(r => (r.dispatchDate || r.sendToSectionDate) && (r.dispatchDate || r.sendToSectionDate)! <= toDate);
         break;
 
       case 'case_specific':
-        repTitle = `Case Specific Docket Report: ${caseNoQuery || 'All'}`;
-        if (caseNoQuery.trim()) {
-          list = list.filter(r => r.caseNo.toLowerCase().includes(caseNoQuery.trim().toLowerCase()));
+        repTitle = caseNoQuery ? `Case Number Specific Report: ${caseNoQuery}` : 'Case Specific Search Report';
+        if (caseNoQuery) {
+          list = list.filter(r => r.caseNo.toLowerCase().includes(caseNoQuery.toLowerCase()));
         }
         break;
     }
@@ -84,51 +84,54 @@ export const ReportsView: React.FC<Props> = ({ records, settings, onPrintReport 
 
   return (
     <div className="space-y-5">
-      {/* Header Banner */}
-      <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* View Header & Action Bar */}
+      <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 text-slate-800">
         <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <FileBarChart2 className="w-5 h-5 text-purple-400" />
-            <span>Official Reports & Ledger Generation</span>
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <FileBarChart2 className="w-5 h-5 text-[#006a4e]" />
+            <span>Official Reports & Document Generation</span>
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Generate, preview, print, and export filtered volume registers across milestone dates.
+          <p className="text-xs text-slate-500 mt-0.5">
+            Filter case volume data by milestone dates and export to official Word (.docx), Excel (.xlsx), or PDF formats.
           </p>
         </div>
 
-        {/* Global Export Bar */}
+        {/* Global Action Export Buttons */}
         <div className="flex flex-wrap items-center gap-2">
           <button
-            onClick={() => ExportService.exportToExcel(filteredRecords, settings, 'VolumnBook_Report')}
+            onClick={() => ExportService.exportToExcel(filteredRecords, settings, title)}
             disabled={filteredRecords.length === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-950/50 hover:bg-emerald-900/60 border border-emerald-700/60 text-emerald-200 text-xs font-medium disabled:opacity-40 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-[#006a4e] text-xs font-semibold disabled:opacity-40 transition-colors cursor-pointer"
+            title="Download as Excel Sheet"
           >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+            <FileSpreadsheet className="w-4 h-4 text-[#006a4e]" />
             <span>Excel (.xlsx)</span>
           </button>
 
           <button
             onClick={() => ExportService.exportToDocx(filteredRecords, settings, title)}
             disabled={filteredRecords.length === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-950/50 hover:bg-blue-900/60 border border-blue-700/60 text-blue-200 text-xs font-medium disabled:opacity-40 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-blue-50 hover:bg-blue-100 border border-blue-300 text-blue-700 text-xs font-semibold disabled:opacity-40 transition-colors cursor-pointer"
+            title="Download as Microsoft Word"
           >
-            <FileText className="w-4 h-4 text-blue-400" />
+            <FileText className="w-4 h-4 text-blue-600" />
             <span>Word (.docx)</span>
           </button>
 
           <button
             onClick={() => ExportService.exportToPdf(filteredRecords, settings, title)}
             disabled={filteredRecords.length === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-950/50 hover:bg-rose-900/60 border border-rose-700/60 text-rose-200 text-xs font-medium disabled:opacity-40 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-rose-50 hover:bg-rose-100 border border-rose-300 text-rose-700 text-xs font-semibold disabled:opacity-40 transition-colors cursor-pointer"
+            title="Download as PDF"
           >
-            <FileDown className="w-4 h-4 text-rose-400" />
+            <FileDown className="w-4 h-4 text-rose-600" />
             <span>PDF (.pdf)</span>
           </button>
 
           <button
             onClick={() => onPrintReport(filteredRecords, title)}
             disabled={filteredRecords.length === 0}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow transition-colors disabled:opacity-40"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded bg-[#006a4e] hover:bg-[#00523c] text-white text-xs font-semibold shadow transition-colors disabled:opacity-40 cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             <span>Print Report</span>
@@ -137,9 +140,9 @@ export const ReportsView: React.FC<Props> = ({ records, settings, onPrintReport 
       </div>
 
       {/* Report Configuration Controls */}
-      <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm text-xs space-y-4">
+      <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm text-xs space-y-4">
         <div>
-          <label className="block text-slate-300 font-semibold mb-2">Select Report Category:</label>
+          <label className="block text-slate-700 font-bold mb-2">Select Report Category:</label>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
             {[
               { id: 'all', label: 'All Records', icon: Layers },
@@ -154,13 +157,13 @@ export const ReportsView: React.FC<Props> = ({ records, settings, onPrintReport 
                 <button
                   key={tab.id}
                   onClick={() => setReportType(tab.id as ReportType)}
-                  className={`p-2.5 rounded-lg border text-left flex items-center gap-2 transition-colors ${
+                  className={`p-2.5 rounded border text-left flex items-center gap-2 transition-colors cursor-pointer ${
                     reportType === tab.id
-                      ? 'bg-purple-600/20 border-purple-500 text-purple-200 font-semibold shadow-inner'
-                      : 'bg-slate-800/70 border-slate-700 text-slate-300 hover:bg-slate-800'
+                      ? 'bg-emerald-50 border-[#006a4e] text-[#006a4e] font-bold shadow-xs'
+                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  <Icon className="w-4 h-4 text-purple-400 shrink-0" />
+                  <Icon className={`w-4 h-4 shrink-0 ${reportType === tab.id ? 'text-[#006a4e]' : 'text-slate-400'}`} />
                   <span className="truncate">{tab.label}</span>
                 </button>
               );
@@ -170,22 +173,22 @@ export const ReportsView: React.FC<Props> = ({ records, settings, onPrintReport 
 
         {/* Dynamic Filters depending on Category */}
         {reportType !== 'all' && (
-          <div className="p-3.5 bg-slate-950/60 border border-slate-800 rounded-lg flex flex-wrap items-center gap-4">
+          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded flex flex-wrap items-center gap-4">
             {reportType === 'case_specific' ? (
               <div className="flex-1 max-w-sm">
-                <label className="text-[11px] text-slate-400 block mb-1">Search Case No:</label>
+                <label className="text-[11px] text-slate-600 font-semibold block mb-1">Search Case No:</label>
                 <input
                   type="text"
                   placeholder="e.g. 102/2026"
                   value={caseNoQuery}
                   onChange={(e) => setCaseNoQuery(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-white text-xs"
+                  className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-slate-900 text-xs focus:ring-1 focus:ring-[#006a4e]"
                 />
               </div>
             ) : (
               <>
                 <div className="w-40">
-                  <label className="text-[11px] text-slate-400 block mb-1">From Date (dd-mm-yyyy):</label>
+                  <label className="text-[11px] text-slate-600 font-semibold block mb-1">From Date (dd-mm-yyyy):</label>
                   <DatePicker
                     value={fromDate}
                     onChange={setFromDate}
@@ -193,7 +196,7 @@ export const ReportsView: React.FC<Props> = ({ records, settings, onPrintReport 
                   />
                 </div>
                 <div className="w-40">
-                  <label className="text-[11px] text-slate-400 block mb-1">To Date (dd-mm-yyyy):</label>
+                  <label className="text-[11px] text-slate-600 font-semibold block mb-1">To Date (dd-mm-yyyy):</label>
                   <DatePicker
                     value={toDate}
                     onChange={setToDate}
@@ -209,9 +212,9 @@ export const ReportsView: React.FC<Props> = ({ records, settings, onPrintReport 
                 setToDate('');
                 setCaseNoQuery('');
               }}
-              className="mt-4 px-2.5 py-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-700 text-xs flex items-center gap-1 transition-colors"
+              className="mt-4 px-2.5 py-1.5 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-200 border border-slate-300 text-xs flex items-center gap-1 transition-colors cursor-pointer"
             >
-              <RotateCcw className="w-3 h-3" />
+              <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset Filters</span>
             </button>
           </div>
@@ -219,11 +222,11 @@ export const ReportsView: React.FC<Props> = ({ records, settings, onPrintReport 
       </div>
 
       {/* Report Preview Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
-        <div className="p-4 bg-slate-950/70 border-b border-slate-800 flex items-center justify-between">
+      <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-sm text-white">{title}</h3>
-            <span className="text-xs text-slate-400">Total matched cases: {filteredRecords.length}</span>
+            <h3 className="font-bold text-sm text-slate-900">{title}</h3>
+            <span className="text-xs text-slate-500 font-medium">Total matched cases: {filteredRecords.length}</span>
           </div>
         </div>
 
@@ -233,32 +236,32 @@ export const ReportsView: React.FC<Props> = ({ records, settings, onPrintReport 
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
+            <table className="w-full text-left text-xs text-slate-700">
+              <thead className="bg-[#006a4e] text-white font-semibold">
                 <tr>
-                  <th className="py-2.5 px-3 text-center w-12">SL</th>
-                  <th className="py-2.5 px-3">Serial No</th>
-                  <th className="py-2.5 px-3">Case No</th>
-                  <th className="py-2.5 px-3">Result</th>
-                  <th className="py-2.5 px-3">Judgement</th>
-                  <th className="py-2.5 px-3">Draft Date</th>
-                  <th className="py-2.5 px-3">Final Date</th>
-                  <th className="py-2.5 px-3">Dispatch Date</th>
-                  <th className="py-2.5 px-3">Remarks</th>
+                  <th className="py-2.5 px-3 text-center w-12 font-semibold">SL</th>
+                  <th className="py-2.5 px-3 font-semibold">Serial No</th>
+                  <th className="py-2.5 px-3 font-semibold">Case No</th>
+                  <th className="py-2.5 px-3 font-semibold">Result</th>
+                  <th className="py-2.5 px-3 font-semibold">Judgement</th>
+                  <th className="py-2.5 px-3 font-semibold">Draft Date</th>
+                  <th className="py-2.5 px-3 font-semibold">Final Date</th>
+                  <th className="py-2.5 px-3 font-semibold">Dispatch Date</th>
+                  <th className="py-2.5 px-3 font-semibold">Remarks</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-200">
                 {filteredRecords.map((r, idx) => (
-                  <tr key={r.id} className="hover:bg-slate-800/40">
-                    <td className="py-2.5 px-3 text-center text-slate-400 font-mono">{idx + 1}</td>
-                    <td className="py-2.5 px-3 font-mono font-bold text-white">{r.serialNo}</td>
-                    <td className="py-2.5 px-3 font-semibold text-blue-400">{r.caseNo}</td>
-                    <td className="py-2.5 px-3 font-medium text-slate-200">{r.result || '-'}</td>
-                    <td className="py-2.5 px-3">{toDisplayDate(r.judgementDate) || '-'}</td>
-                    <td className="py-2.5 px-3">{toDisplayDate(r.draftDate) || '-'}</td>
-                    <td className="py-2.5 px-3">{toDisplayDate(r.finalDate) || '-'}</td>
-                    <td className="py-2.5 px-3">{toDisplayDate(r.dispatchDate || r.sendToSectionDate) || '-'}</td>
-                    <td className="py-2.5 px-3 max-w-[200px] truncate text-slate-400">{r.remarks || '-'}</td>
+                  <tr key={r.id} className="hover:bg-emerald-50/60 transition-colors">
+                    <td className="py-2.5 px-3 text-center text-slate-500 font-mono">{idx + 1}</td>
+                    <td className="py-2.5 px-3 font-mono font-bold text-slate-900">{r.serialNo}</td>
+                    <td className="py-2.5 px-3 font-semibold text-[#006a4e]">{r.caseNo}</td>
+                    <td className="py-2.5 px-3 font-medium text-slate-800">{r.result || '-'}</td>
+                    <td className="py-2.5 px-3 font-mono text-slate-600">{toDisplayDate(r.judgementDate) || '-'}</td>
+                    <td className="py-2.5 px-3 font-mono text-slate-600">{toDisplayDate(r.draftDate) || '-'}</td>
+                    <td className="py-2.5 px-3 font-mono text-slate-600">{toDisplayDate(r.finalDate) || '-'}</td>
+                    <td className="py-2.5 px-3 font-mono text-slate-600">{toDisplayDate(r.dispatchDate || r.sendToSectionDate) || '-'}</td>
+                    <td className="py-2.5 px-3 max-w-[200px] truncate text-slate-500">{r.remarks || '-'}</td>
                   </tr>
                 ))}
               </tbody>

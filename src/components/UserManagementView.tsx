@@ -46,7 +46,7 @@ export const UserManagementView: React.FC<Props> = ({ currentAdminUsername, onNo
       return;
     }
     try {
-      await StorageService.createUser('Administrator', {
+      await StorageService.createUser(currentAdminUsername, {
         username,
         fullName,
         email,
@@ -59,46 +59,51 @@ export const UserManagementView: React.FC<Props> = ({ currentAdminUsername, onNo
       setFullName('');
       setEmail('');
       setPassword('');
-      onNotify('success', `User account "${username}" created.`, 'User Created');
+      onNotify('success', `User "${username}" created successfully.`, 'User Registered');
     } catch (err: any) {
-      onNotify('error', err.message || 'Failed to create user.', 'Error');
+      onNotify('error', err.message, 'Create User Failed');
     }
   };
 
-  const handleToggleStatus = (target: User) => {
+  const handleToggleStatus = (u: User) => {
+    if (u.username.toLowerCase() === currentAdminUsername.toLowerCase()) {
+      onNotify('warning', 'You cannot deactivate your own active session account.', 'Action Prevented');
+      return;
+    }
     try {
-      const updated = StorageService.toggleUserStatus(currentAdminUsername, target.id);
+      const updatedUser = StorageService.toggleUserStatus(currentAdminUsername, u.id);
       refreshUsers();
-      onNotify(
-        'info',
-        `Account "${target.username}" is now ${updated.isActive ? 'Active' : 'Deactivated'}.`,
-        'Status Updated'
-      );
+      onNotify('info', `User "${u.username}" status updated to ${updatedUser.isActive ? 'Active' : 'Disabled'}.`, 'Status Updated');
     } catch (err: any) {
-      onNotify('error', err.message, 'Operation Blocked');
+      onNotify('error', err.message, 'Status Update Failed');
     }
   };
 
-  const handleDeleteUser = (target: User) => {
-    if (!confirm(`Are you sure you want to permanently delete user "${target.username}"?`)) return;
-    try {
-      StorageService.deleteUser(currentAdminUsername, target.id);
-      refreshUsers();
-      onNotify('success', `User "${target.username}" was deleted.`, 'User Deleted');
-    } catch (err: any) {
-      onNotify('error', err.message, 'Operation Blocked');
+  const handleDeleteUser = (u: User) => {
+    if (u.username.toLowerCase() === currentAdminUsername.toLowerCase()) {
+      onNotify('warning', 'You cannot delete your current administrator session.', 'Action Prevented');
+      return;
+    }
+    if (window.confirm(`Are you sure you want to delete user "${u.username}"?`)) {
+      try {
+        StorageService.deleteUser(currentAdminUsername, u.id);
+        refreshUsers();
+        onNotify('success', `User "${u.username}" has been removed.`, 'User Deleted');
+      } catch (err: any) {
+        onNotify('error', err.message, 'Delete Failed');
+      }
     }
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resetTargetUser) return;
-    if (newPassword.length < 6) {
-      onNotify('error', 'Password must be at least 6 characters.', 'Validation');
+    if (newPassword !== confirmNewPassword) {
+      onNotify('error', 'Passwords do not match.', 'Password Mismatch');
       return;
     }
-    if (newPassword !== confirmNewPassword) {
-      onNotify('error', 'Passwords do not match.', 'Validation');
+    if (newPassword.length < 6) {
+      onNotify('error', 'Password must be at least 6 characters.', 'Password Short');
       return;
     }
 
@@ -107,29 +112,28 @@ export const UserManagementView: React.FC<Props> = ({ currentAdminUsername, onNo
       setResetTargetUser(null);
       setNewPassword('');
       setConfirmNewPassword('');
-      onNotify('success', `Password for "${resetTargetUser.username}" was reset successfully.`, 'Password Reset');
+      onNotify('success', `Password for "${resetTargetUser.username}" has been successfully updated.`, 'Password Reset');
     } catch (err: any) {
-      onNotify('error', err.message, 'Error');
+      onNotify('error', err.message, 'Password Reset Failed');
     }
   };
 
   return (
-    <div className="space-y-5">
-      {/* Header */}
-      <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-5 text-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Users className="w-5 h-5 text-amber-400" />
+          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <Users className="w-5 h-5 text-[#006a4e]" />
             <span>User Management & Access Control</span>
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Manage local operator accounts, roles, activation statuses, and offline password resets.
           </p>
         </div>
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow transition-colors self-start sm:self-auto"
+          className="flex items-center gap-1.5 px-4 py-2 bg-[#006a4e] hover:bg-[#00523c] text-white text-xs font-semibold rounded shadow transition-colors self-start sm:self-auto cursor-pointer"
         >
           <UserPlus className="w-4 h-4" />
           <span>Add New User</span>
@@ -137,10 +141,10 @@ export const UserManagementView: React.FC<Props> = ({ currentAdminUsername, onNo
       </div>
 
       {/* User Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-[#006a4e] text-white font-semibold">
               <tr>
                 <th className="py-3 px-4">Username</th>
                 <th className="py-3 px-4">Full Name</th>
@@ -152,55 +156,55 @@ export const UserManagementView: React.FC<Props> = ({ currentAdminUsername, onNo
                 <th className="py-3 px-4 text-right pr-5">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-200">
               {users.map((u) => (
-                <tr key={u.id} className="hover:bg-slate-800/40">
-                  <td className="py-3 px-4 font-mono font-medium text-white">{u.username}</td>
-                  <td className="py-3 px-4">{u.fullName}</td>
-                  <td className="py-3 px-4 text-slate-400">{u.email || '-'}</td>
+                <tr key={u.id} className="hover:bg-emerald-50/60 transition-colors">
+                  <td className="py-3 px-4 font-mono font-bold text-slate-900">{u.username}</td>
+                  <td className="py-3 px-4 font-medium text-slate-800">{u.fullName}</td>
+                  <td className="py-3 px-4 text-slate-500">{u.email || '-'}</td>
                   <td className="py-3 px-4">
                     <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold ${
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${
                         u.role === 'Administrator'
-                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                          : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                          ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                          : 'bg-slate-100 text-slate-800 border border-slate-300'
                       }`}
                     >
-                      {u.role === 'Administrator' && <Shield className="w-2.5 h-2.5" />}
+                      {u.role === 'Administrator' && <Shield className="w-2.5 h-2.5 text-amber-600" />}
                       {u.role}
                     </span>
                   </td>
                   <td className="py-3 px-4">
                     <span
-                      className={`inline-flex items-center gap-1 text-[11px] ${
-                        u.isActive ? 'text-emerald-400 font-medium' : 'text-slate-500'
+                      className={`inline-flex items-center gap-1 text-[11px] font-medium ${
+                        u.isActive ? 'text-[#006a4e]' : 'text-slate-400'
                       }`}
                     >
-                      {u.isActive ? <CheckCircle className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+                      {u.isActive ? <CheckCircle className="w-3.5 h-3.5 text-[#006a4e]" /> : <XCircle className="w-3.5 h-3.5" />}
                       {u.isActive ? 'Active' : 'Disabled'}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-slate-400">{toDisplayDate(u.createdAt.substring(0, 10))}</td>
-                  <td className="py-3 px-4 text-slate-400">{formatTimestamp(u.lastLoginAt || '') || 'Never'}</td>
+                  <td className="py-3 px-4 font-mono text-slate-500">{toDisplayDate(u.createdAt.substring(0, 10))}</td>
+                  <td className="py-3 px-4 font-mono text-slate-500">{formatTimestamp(u.lastLoginAt || '') || 'Never'}</td>
                   <td className="py-3 px-4 text-right pr-5">
                     <div className="flex items-center justify-end gap-1.5">
                       <button
                         onClick={() => setResetTargetUser(u)}
-                        className="p-1 rounded text-amber-400 hover:text-amber-300 hover:bg-amber-950/40"
+                        className="p-1 rounded text-amber-600 hover:text-amber-800 hover:bg-amber-100 cursor-pointer"
                         title="Reset Password"
                       >
                         <KeyRound className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => handleToggleStatus(u)}
-                        className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]"
+                        className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-semibold border border-slate-300 cursor-pointer"
                         title={u.isActive ? 'Deactivate Account' : 'Activate Account'}
                       >
                         {u.isActive ? 'Deactivate' : 'Activate'}
                       </button>
                       <button
                         onClick={() => handleDeleteUser(u)}
-                        className="p-1 rounded text-rose-400 hover:text-rose-300 hover:bg-rose-950/40"
+                        className="p-1 rounded text-red-600 hover:text-red-800 hover:bg-red-100 cursor-pointer"
                         title="Delete User"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -216,16 +220,16 @@ export const UserManagementView: React.FC<Props> = ({ currentAdminUsername, onNo
 
       {/* Add User Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-md w-full p-6 text-slate-100 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-              <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                <UserPlus className="w-4 h-4 text-blue-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white border border-slate-200 rounded-lg max-w-md w-full p-6 text-slate-800 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+              <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                <UserPlus className="w-4 h-4 text-[#006a4e]" />
                 <span>Register Local User Account</span>
               </h3>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-slate-700 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -233,35 +237,35 @@ export const UserManagementView: React.FC<Props> = ({ currentAdminUsername, onNo
 
             <form onSubmit={handleAddUser} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-slate-300 font-medium mb-1">Full Name *</label>
+                <label className="block text-slate-700 font-semibold mb-1">Full Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Staff Officer"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                  className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#006a4e]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 font-medium mb-1">Username *</label>
+                  <label className="block text-slate-700 font-semibold mb-1">Username *</label>
                   <input
                     type="text"
                     required
                     placeholder="username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                    className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#006a4e]"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 font-medium mb-1">Role *</label>
+                  <label className="block text-slate-700 font-semibold mb-1">Role *</label>
                   <select
                     value={role}
                     onChange={(e) => setRole(e.target.value as any)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                    className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#006a4e]"
                   >
                     <option value="User">Normal User</option>
                     <option value="Administrator">Administrator</option>
@@ -270,39 +274,39 @@ export const UserManagementView: React.FC<Props> = ({ currentAdminUsername, onNo
               </div>
 
               <div>
-                <label className="block text-slate-300 font-medium mb-1">Email</label>
+                <label className="block text-slate-700 font-semibold mb-1">Email</label>
                 <input
                   type="email"
-                  placeholder="staff@office.local"
+                  placeholder="staff@gov.bd"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                  className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#006a4e]"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 font-medium mb-1">Initial Password *</label>
+                <label className="block text-slate-700 font-semibold mb-1">Initial Password *</label>
                 <input
                   type="password"
                   required
                   placeholder="Minimum 6 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                  className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#006a4e]"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-3.5 py-1.5 rounded-lg border border-slate-700 text-slate-300 hover:text-white"
+                  className="px-3.5 py-1.5 rounded border border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold"
+                  className="px-4 py-1.5 rounded bg-[#006a4e] hover:bg-[#00523c] text-white font-semibold cursor-pointer"
                 >
                   Save Account
                 </button>
@@ -314,61 +318,61 @@ export const UserManagementView: React.FC<Props> = ({ currentAdminUsername, onNo
 
       {/* Reset Password Modal */}
       {resetTargetUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-sm w-full p-6 text-slate-100 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-              <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                <KeyRound className="w-4 h-4 text-amber-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white border border-slate-200 rounded-lg max-w-sm w-full p-6 text-slate-800 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+              <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                <KeyRound className="w-4 h-4 text-amber-500" />
                 <span>Reset User Password</span>
               </h3>
               <button
                 onClick={() => setResetTargetUser(null)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-slate-700 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs text-slate-400 mb-3">
-              Setting new offline password for user: <strong className="text-white">{resetTargetUser.username}</strong>
+            <p className="text-xs text-slate-600 mb-3">
+              Setting new offline password for user: <strong className="text-slate-900">{resetTargetUser.username}</strong>
             </p>
 
             <form onSubmit={handleResetPassword} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-slate-300 font-medium mb-1">New Password</label>
+                <label className="block text-slate-700 font-semibold mb-1">New Password</label>
                 <input
                   type="password"
                   required
                   placeholder="Min 6 characters"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                  className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#006a4e]"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 font-medium mb-1">Confirm New Password</label>
+                <label className="block text-slate-700 font-semibold mb-1">Confirm New Password</label>
                 <input
                   type="password"
                   required
                   placeholder="Re-type password"
                   value={confirmNewPassword}
                   onChange={(e) => setConfirmNewPassword(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                  className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#006a4e]"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setResetTargetUser(null)}
-                  className="px-3.5 py-1.5 rounded-lg border border-slate-700 text-slate-300 hover:text-white"
+                  className="px-3.5 py-1.5 rounded border border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold"
+                  className="px-4 py-1.5 rounded bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold cursor-pointer"
                 >
                   Update Password
                 </button>

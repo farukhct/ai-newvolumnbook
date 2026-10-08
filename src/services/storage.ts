@@ -1,4 +1,4 @@
-import { AppSettings, DashboardStats, User, VolumeRecord } from '../types';
+import { AppSettings, BulkImportOptions, BulkImportResult, CsvImportRow, DashboardStats, User, VolumeRecord } from '../types';
 
 const STORAGE_KEYS = {
   RECORDS: 'volumnbook_volume_records',
@@ -591,6 +591,139 @@ export class StorageService {
       dispatched: totalDispatched,
       sentToSection: totalDispatched,
       latestRecords,
+    };
+  }
+
+  // ===================== BULK CSV IMPORT =====================
+
+  public static bulkImportRecords(
+    rows: CsvImportRow[],
+    options: BulkImportOptions,
+    username: string
+  ): BulkImportResult {
+    const validRows = rows.filter((r) => r.isValid);
+    if (validRows.length === 0) {
+      throw new Error('No valid rows found to import.');
+    }
+
+    // Step 1: Automated Safety Backup before applying bulk changes
+    const backup = this.backupDatabase();
+    localStorage.setItem(STORAGE_KEYS.AUTO_BACKUP, backup.jsonContent);
+
+    // Step 2: Determine base ledger
+    const existingRecords = options.mode === 'replace' ? [] : this.getRecords();
+    const records: VolumeRecord[] = [...existingRecords];
+
+    let addedCount = 0;
+    let updatedCount = 0;
+    let skippedCount = 0;
+    const errors: string[] = [];
+
+    // Map existing cases for fast duplicate lookup
+    const caseMap = new Map<string, number>(); // lowerCase -> index in records
+    records.forEach((r, idx) => {
+      caseMap.set(r.caseNo.trim().toLowerCase(), idx);
+    });
+
+    // Determine starting serial number
+    let nextSerial =
+      records.length === 0
+        ? 1
+        : Math.max(...records.map((r) => Number(r.serialNo) || 0)) + 1;
+    const usedSerials = new Set<number>(records.map((r) => r.serialNo));
+
+    const now = new Date().toISOString();
+
+    for (const row of validRows) {
+      const normalizedCase = row.caseNo.trim().toLowerCase();
+      const existingIdx = caseMap.get(normalizedCase);
+
+      if (existingIdx !== undefined && options.mode !== 'replace') {
+        if (options.duplicateHandling === 'skip') {
+          skippedCount++;
+          continue;
+        } else if (options.duplicateHandling === 'overwrite') {
+          // Overwrite existing record fields
+          const existing = records[existingIdx];
+          const effectiveDispatch = (row.dispatchDate || existing.dispatchDate || '').trim();
+          const updated: VolumeRecord = {
+            ...existing,
+            caseNo: row.caseNo.trim(),
+            result: row.result ? row.result.trim() : existing.result,
+            judgementDate: row.judgementDate || existing.judgementDate,
+            draftDate: row.draftDate || existing.draftDate,
+            finalDate: row.finalDate || existing.finalDate,
+            dispatchDate: effectiveDispatch,
+            sendToSectionDate: effectiveDispatch,
+            remarks: row.remarks ? row.remarks.trim() : existing.remarks,
+            updatedAt: now,
+            updatedBy: username || 'CSV Import',
+          };
+          records[existingIdx] = updated;
+          updatedCount++;
+          continue;
+        }
+        // If 'allow', falls through to create as new record
+      }
+
+      // Assign Serial Number
+      let assignedSerial: number;
+      if (options.autoAssignSerials || row.serialNo === undefined) {
+        while (usedSerials.has(nextSerial)) {
+          nextSerial++;
+        }
+        assignedSerial = nextSerial;
+        usedSerials.add(assignedSerial);
+        nextSerial++;
+      } else {
+        if (usedSerials.has(row.serialNo)) {
+          // Collision: allocate next available unique serial number
+          while (usedSerials.has(nextSerial)) {
+            nextSerial++;
+          }
+          assignedSerial = nextSerial;
+          usedSerials.add(assignedSerial);
+          nextSerial++;
+        } else {
+          assignedSerial = row.serialNo;
+          usedSerials.add(assignedSerial);
+          if (assignedSerial >= nextSerial) {
+            nextSerial = assignedSerial + 1;
+          }
+        }
+      }
+
+      const effectiveDispatch = (row.dispatchDate || '').trim();
+      const newRecord: VolumeRecord = {
+        id: 'rec_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7) + '_' + addedCount,
+        serialNo: assignedSerial,
+        caseNo: row.caseNo.trim(),
+        result: (row.result || '').trim(),
+        judgementDate: (row.judgementDate || '').trim(),
+        draftDate: (row.draftDate || '').trim(),
+        finalDate: (row.finalDate || '').trim(),
+        dispatchDate: effectiveDispatch,
+        sendToSectionDate: effectiveDispatch,
+        remarks: (row.remarks || '').trim(),
+        createdAt: now,
+        updatedAt: now,
+        createdBy: username || 'CSV Import',
+        updatedBy: username || 'CSV Import',
+      };
+
+      records.push(newRecord);
+      caseMap.set(normalizedCase, records.length - 1);
+      addedCount++;
+    }
+
+    localStorage.setItem(STORAGE_KEYS.RECORDS, JSON.stringify(records));
+
+    return {
+      totalProcessed: validRows.length,
+      addedCount,
+      updatedCount,
+      skippedCount,
+      errors,
     };
   }
 }

@@ -240,7 +240,7 @@ export default function App() {
   const isAdmin = currentUser.role === 'Administrator';
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans select-none antialiased">
+    <div className="min-h-screen bg-[#f0f4f2] text-slate-800 flex flex-col font-sans select-none antialiased">
       {/* Top Application Header */}
       <Header
         currentUser={currentUser}
@@ -267,7 +267,7 @@ export default function App() {
         />
 
         {/* Dynamic Content Region */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-950">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#f0f4f2]">
           <div className="max-w-7xl mx-auto">
             {/* View 1: Dashboard */}
             {currentTab === 'dashboard' && (

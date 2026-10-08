@@ -33,22 +33,22 @@ export const PrintModal: React.FC<Props> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs print:p-0 print:bg-white print:fixed print:inset-0">
       <div className="bg-white text-slate-900 rounded-xl max-w-4xl w-full shadow-2xl flex flex-col max-h-[92vh] overflow-hidden print:max-w-none print:w-full print:h-auto print:max-h-none print:shadow-none print:rounded-none">
         {/* Controls - Hidden in Print */}
-        <div className="px-6 py-3 bg-slate-900 text-white flex items-center justify-between print:hidden">
+        <div className="px-6 py-3 bg-[#006a4e] text-white flex items-center justify-between border-b-2 border-[#c68a14] print:hidden">
           <div className="flex items-center gap-2">
-            <Printer className="w-4 h-4 text-blue-400" />
-            <span className="font-semibold text-sm">Official Print Preview</span>
+            <Printer className="w-4 h-4 text-amber-300" />
+            <span className="font-semibold text-sm">Official Government Ledger Print Preview</span>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow transition-colors flex items-center gap-1.5"
+              className="px-4 py-1.5 rounded bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs font-bold shadow transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print Document (Ctrl+P)</span>
             </button>
             <button
               onClick={onClose}
-              className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1 rounded text-emerald-200 hover:text-white hover:bg-emerald-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>

@@ -52,23 +52,24 @@ export const Sidebar: React.FC<Props> = ({
   const isAdmin = userRole === 'Administrator';
 
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col h-full shrink-0 select-none">
-      <div className="p-3 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
-        Main Navigation
+    <aside className="w-64 bg-[#004d38] border-r border-[#003b2b] text-emerald-100 flex flex-col h-full shrink-0 select-none shadow-md">
+      <div className="px-4 py-3 text-[10px] font-bold tracking-wider text-amber-300/90 uppercase border-b border-[#003f2e] flex items-center justify-between">
+        <span>iBAS Navigation Portal</span>
+        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-2 space-y-1 text-xs">
+      <nav className="flex-1 overflow-y-auto p-2 space-y-1 text-xs">
         {/* Dashboard */}
         <button
           onClick={() => onSelectTab('dashboard')}
-          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors ${
+          className={`w-full flex items-center justify-between px-3 py-2.5 rounded transition cursor-pointer ${
             currentTab === 'dashboard'
-              ? 'bg-blue-600 text-white font-medium shadow-sm'
-              : 'hover:bg-slate-800 text-slate-300'
+              ? 'bg-[#006a4e] text-white font-bold border-l-4 border-amber-400 shadow-sm pl-2'
+              : 'hover:bg-[#005a42] text-emerald-100'
           }`}
         >
           <div className="flex items-center gap-2.5">
-            <LayoutDashboard className="w-4 h-4 text-blue-400" />
+            <LayoutDashboard className="w-4 h-4 text-amber-300" />
             <span>Dashboard</span>
           </div>
         </button>
@@ -77,47 +78,53 @@ export const Sidebar: React.FC<Props> = ({
         <div>
           <button
             onClick={() => setVolumnOpen(!volumnOpen)}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 transition-colors"
+            className="w-full flex items-center justify-between px-3 py-2 rounded text-emerald-100 hover:bg-[#005a42] transition cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
-              <BookOpen className="w-4 h-4 text-emerald-400" />
-              <span className="font-medium">Volume Book</span>
+              <BookOpen className="w-4 h-4 text-emerald-300" />
+              <span className="font-semibold">Volume Book</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400">
+              <span className="text-[10px] bg-[#003828] border border-emerald-600/40 px-1.5 py-0.5 rounded font-mono font-bold text-amber-300">
                 {recordCount}
               </span>
-              {volumnOpen ? <ChevronDown className="w-3.5 h-3.5 text-slate-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
+              {volumnOpen ? <ChevronDown className="w-3.5 h-3.5 text-emerald-300" /> : <ChevronRight className="w-3.5 h-3.5 text-emerald-300" />}
             </div>
           </button>
 
           {volumnOpen && (
-            <div className="ml-5 pl-2 border-l border-slate-800 space-y-0.5 mt-0.5">
+            <div className="ml-5 pl-2 border-l border-[#006046] space-y-0.5 mt-0.5">
               <button
                 onClick={() => onSelectTab('records_new')}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition-colors ${
-                  currentTab === 'records_new' ? 'bg-blue-600 text-white font-medium' : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-xs transition cursor-pointer ${
+                  currentTab === 'records_new' 
+                    ? 'bg-[#006a4e] text-white font-semibold border-l-2 border-amber-400' 
+                    : 'hover:bg-[#005a42] text-emerald-200 hover:text-white'
                 }`}
               >
-                <PlusCircle className="w-3.5 h-3.5 text-blue-400" />
+                <PlusCircle className="w-3.5 h-3.5 text-amber-300" />
                 <span>New Entry</span>
               </button>
               <button
                 onClick={() => onSelectTab('records_all')}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition-colors ${
-                  currentTab === 'records_all' ? 'bg-blue-600 text-white font-medium' : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-xs transition cursor-pointer ${
+                  currentTab === 'records_all' 
+                    ? 'bg-[#006a4e] text-white font-semibold border-l-2 border-amber-400' 
+                    : 'hover:bg-[#005a42] text-emerald-200 hover:text-white'
                 }`}
               >
-                <ListFilter className="w-3.5 h-3.5 text-emerald-400" />
+                <ListFilter className="w-3.5 h-3.5 text-emerald-300" />
                 <span>All Records</span>
               </button>
               <button
                 onClick={() => onSelectTab('records_search')}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition-colors ${
-                  currentTab === 'records_search' ? 'bg-blue-600 text-white font-medium' : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-xs transition cursor-pointer ${
+                  currentTab === 'records_search' 
+                    ? 'bg-[#006a4e] text-white font-semibold border-l-2 border-amber-400' 
+                    : 'hover:bg-[#005a42] text-emerald-200 hover:text-white'
                 }`}
               >
-                <Search className="w-3.5 h-3.5 text-amber-400" />
+                <Search className="w-3.5 h-3.5 text-amber-300" />
                 <span>Search & Filter</span>
               </button>
             </div>
@@ -131,32 +138,34 @@ export const Sidebar: React.FC<Props> = ({
               setReportsOpen(!reportsOpen);
               onSelectTab('reports');
             }}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
-              currentTab === 'reports' ? 'bg-blue-600 text-white font-medium shadow-sm' : 'hover:bg-slate-800 text-slate-300'
+            className={`w-full flex items-center justify-between px-3 py-2 rounded transition cursor-pointer ${
+              currentTab === 'reports' 
+                ? 'bg-[#006a4e] text-white font-bold border-l-4 border-amber-400 shadow-sm pl-2' 
+                : 'hover:bg-[#005a42] text-emerald-100'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <FileBarChart2 className="w-4 h-4 text-purple-400" />
-              <span className="font-medium">Reports & Exports</span>
+              <FileBarChart2 className="w-4 h-4 text-amber-300" />
+              <span className="font-semibold">Reports & Exports</span>
             </div>
-            {reportsOpen ? <ChevronDown className="w-3.5 h-3.5 text-slate-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
+            {reportsOpen ? <ChevronDown className="w-3.5 h-3.5 text-emerald-300" /> : <ChevronRight className="w-3.5 h-3.5 text-emerald-300" />}
           </button>
 
           {reportsOpen && (
-            <div className="ml-5 pl-2 border-l border-slate-800 space-y-0.5 mt-0.5 text-slate-400">
+            <div className="ml-5 pl-2 border-l border-[#006046] space-y-0.5 mt-0.5 text-emerald-200">
               <button
                 onClick={() => onSelectTab('reports')}
-                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs hover:bg-slate-800 hover:text-slate-200"
+                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-xs hover:bg-[#005a42] hover:text-white cursor-pointer"
               >
-                <Layers className="w-3.5 h-3.5 text-purple-300" />
-                <span>Comprehensive Reports</span>
+                <Layers className="w-3.5 h-3.5 text-amber-300" />
+                <span>Official Reports</span>
               </button>
               <button
                 onClick={() => onSelectTab('reports')}
-                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs hover:bg-slate-800 hover:text-slate-200"
+                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-xs hover:bg-[#005a42] hover:text-white cursor-pointer"
               >
-                <Calendar className="w-3.5 h-3.5 text-blue-300" />
-                <span>Date Range & Milestones</span>
+                <Calendar className="w-3.5 h-3.5 text-emerald-300" />
+                <span>Date Milestones</span>
               </button>
             </div>
           )}
@@ -170,32 +179,34 @@ export const Sidebar: React.FC<Props> = ({
                 setDatabaseOpen(!databaseOpen);
                 onSelectTab('database');
               }}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
-                currentTab === 'database' ? 'bg-blue-600 text-white font-medium shadow-sm' : 'hover:bg-slate-800 text-slate-300'
+              className={`w-full flex items-center justify-between px-3 py-2 rounded transition cursor-pointer ${
+                currentTab === 'database' 
+                  ? 'bg-[#006a4e] text-white font-bold border-l-4 border-amber-400 shadow-sm pl-2' 
+                  : 'hover:bg-[#005a42] text-emerald-100'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <Database className="w-4 h-4 text-cyan-400" />
-                <span className="font-medium">Database</span>
+                <Database className="w-4 h-4 text-amber-300" />
+                <span className="font-semibold">Database & Safety</span>
               </div>
-              {databaseOpen ? <ChevronDown className="w-3.5 h-3.5 text-slate-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
+              {databaseOpen ? <ChevronDown className="w-3.5 h-3.5 text-emerald-300" /> : <ChevronRight className="w-3.5 h-3.5 text-emerald-300" />}
             </button>
 
             {databaseOpen && (
-              <div className="ml-5 pl-2 border-l border-slate-800 space-y-0.5 mt-0.5 text-slate-400">
+              <div className="ml-5 pl-2 border-l border-[#006046] space-y-0.5 mt-0.5 text-emerald-200">
                 <button
                   onClick={() => onSelectTab('database')}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs hover:bg-slate-800 hover:text-slate-200"
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-xs hover:bg-[#005a42] hover:text-white cursor-pointer"
                 >
-                  <HardDrive className="w-3.5 h-3.5 text-cyan-300" />
+                  <HardDrive className="w-3.5 h-3.5 text-amber-300" />
                   <span>Backup & Restore</span>
                 </button>
                 <button
                   onClick={() => onSelectTab('database')}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs hover:bg-slate-800 hover:text-slate-200"
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-xs hover:bg-[#005a42] hover:text-white cursor-pointer"
                 >
-                  <span className="text-[10px] text-amber-400 font-mono">SQL</span>
-                  <span>Integrity Check</span>
+                  <span className="text-[10px] text-amber-300 font-mono font-bold">CSV</span>
+                  <span>Bulk Import</span>
                 </button>
               </div>
             )}
@@ -206,54 +217,60 @@ export const Sidebar: React.FC<Props> = ({
         {isAdmin && (
           <button
             onClick={() => onSelectTab('users')}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
-              currentTab === 'users' ? 'bg-blue-600 text-white font-medium shadow-sm' : 'hover:bg-slate-800 text-slate-300'
+            className={`w-full flex items-center justify-between px-3 py-2 rounded transition cursor-pointer ${
+              currentTab === 'users' 
+                ? 'bg-[#006a4e] text-white font-bold border-l-4 border-amber-400 shadow-sm pl-2' 
+                : 'hover:bg-[#005a42] text-emerald-100'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Users className="w-4 h-4 text-amber-400" />
-              <span>User Management</span>
+              <Users className="w-4 h-4 text-amber-300" />
+              <span className="font-semibold">User Management</span>
             </div>
           </button>
         )}
 
         {/* System & Settings */}
-        <div className="pt-2 border-t border-slate-800/80 space-y-1">
+        <div className="pt-2 border-t border-[#003f2e] space-y-1">
           <button
             onClick={() => onSelectTab('settings')}
-            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-              currentTab === 'settings' ? 'bg-blue-600 text-white font-medium shadow-sm' : 'hover:bg-slate-800 text-slate-300'
+            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded transition cursor-pointer ${
+              currentTab === 'settings' 
+                ? 'bg-[#006a4e] text-white font-bold border-l-4 border-amber-400 shadow-sm pl-2' 
+                : 'hover:bg-[#005a42] text-emerald-100'
             }`}
           >
-            <Settings className="w-4 h-4 text-slate-400" />
+            <Settings className="w-4 h-4 text-emerald-300" />
             <span>Settings</span>
           </button>
 
           <button
             onClick={() => onSelectTab('about')}
-            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-              currentTab === 'about' ? 'bg-blue-600 text-white font-medium shadow-sm' : 'hover:bg-slate-800 text-slate-300'
+            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded transition cursor-pointer ${
+              currentTab === 'about' 
+                ? 'bg-[#006a4e] text-white font-bold border-l-4 border-amber-400 shadow-sm pl-2' 
+                : 'hover:bg-[#005a42] text-emerald-100'
             }`}
           >
-            <HelpCircle className="w-4 h-4 text-slate-400" />
-            <span>About</span>
+            <HelpCircle className="w-4 h-4 text-emerald-300" />
+            <span>System Details</span>
           </button>
         </div>
       </nav>
 
       {/* Footer Info */}
-      <div className="p-3 bg-slate-950 border-t border-slate-800 text-[11px] text-slate-400 space-y-2">
+      <div className="p-3 bg-[#003828] border-t border-[#002e20] text-[11px] text-emerald-200 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-slate-400">Database Engine:</span>
-          <span className="text-emerald-400 font-mono font-medium">SQLite Embedded</span>
+          <span className="text-emerald-300">Database:</span>
+          <span className="text-amber-300 font-mono font-bold">Encrypted Ledger</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-slate-400">Operation:</span>
-          <span className="text-blue-300 font-medium">100% Offline</span>
+          <span className="text-emerald-300">Architecture:</span>
+          <span className="text-white font-medium">Standalone Offline</span>
         </div>
         <button
           onClick={onLogout}
-          className="w-full mt-1 flex items-center justify-center gap-1.5 py-1.5 rounded bg-slate-800 hover:bg-rose-950/40 text-slate-300 hover:text-rose-300 transition-colors"
+          className="w-full mt-1 flex items-center justify-center gap-1.5 py-1.5 rounded bg-[#004d38] hover:bg-red-800 text-white font-medium transition cursor-pointer shadow-sm"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>Exit / Sign Out</span>

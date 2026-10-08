@@ -1,5 +1,35 @@
 @import "tailwindcss";
 
+:root {
+  --gov-green: #006a4e;
+  --gov-green-dark: #00523c;
+  --gov-green-deep: #003e2d;
+  --gov-green-light: #e8f5e9;
+  --gov-red: #d92534;
+  --gov-gold: #c68a14;
+  --gov-gold-light: #f59e0b;
+  --gov-bg: #f0f4f2;
+}
+
+/* Custom scrollbars for clean administrative view */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #e2e8f0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
 @layer utilities {
   @keyframes slideIn {
     from {
@@ -14,9 +44,11 @@
 
   @keyframes slideLeft {
     from {
+      opacity: 0;
       transform: translateX(100%);
     }
     to {
+      opacity: 1;
       transform: translateX(0);
     }
   }
@@ -62,9 +94,6 @@
     top: 0 !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 10mm !important;
-    background: white !important;
-    color: black !important;
+    padding: 20px !important;
   }
 }
-

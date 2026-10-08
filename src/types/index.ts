@@ -82,3 +82,34 @@ export interface ToastMessage {
   title?: string;
   message: string;
 }
+
+export interface CsvImportRow {
+  rawRowIndex: number;
+  serialNo?: number;
+  caseNo: string;
+  result: string;
+  judgementDate: string;
+  draftDate: string;
+  finalDate: string;
+  dispatchDate: string;
+  remarks: string;
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+  isExistingCase?: boolean;
+  existingRecordId?: string;
+}
+
+export interface BulkImportOptions {
+  mode: 'append' | 'replace';
+  duplicateHandling: 'skip' | 'overwrite' | 'allow';
+  autoAssignSerials: boolean;
+}
+
+export interface BulkImportResult {
+  totalProcessed: number;
+  addedCount: number;
+  updatedCount: number;
+  skippedCount: number;
+  errors: string[];
+}

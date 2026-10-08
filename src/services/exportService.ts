@@ -52,6 +52,33 @@ export class ExportService {
   }
 
   /**
+   * Export records to standard CSV file (.csv)
+   */
+  public static exportToCsv(records: VolumeRecord[], settings: AppSettings, filenamePrefix = 'VolumnBook_Records'): void {
+    const headers = ['Serial No', 'Case No', 'Result', 'Judgement Date', 'Draft Date', 'Final Date', 'Dispatch Date', 'Remarks'];
+    const rows = records.map((r) => [
+      r.serialNo,
+      `"${(r.caseNo || '').replace(/"/g, '""')}"`,
+      `"${(r.result || '').replace(/"/g, '""')}"`,
+      toDisplayDate(r.judgementDate),
+      toDisplayDate(r.draftDate),
+      toDisplayDate(r.finalDate),
+      toDisplayDate(r.dispatchDate || r.sendToSectionDate),
+      `"${(r.remarks || '').replace(/"/g, '""')}"`,
+    ]);
+    const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${filenamePrefix}_${new Date().toISOString().substring(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  /**
    * Export records to native Microsoft Word document (.docx)
    */
   public static async exportToDocx(records: VolumeRecord[], settings: AppSettings, title = 'Case Volume Book Record Report'): Promise<void> {
