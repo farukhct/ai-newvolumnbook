@@ -1,4 +1,4 @@
-import { AppSettings, User, VolumeRecord } from '../types';
+import { AppSettings, DashboardStats, User, VolumeRecord } from '../types';
 
 const STORAGE_KEYS = {
   RECORDS: 'volumnbook_volume_records',
@@ -554,6 +554,43 @@ export class StorageService {
       details,
       recordCount: records.length,
       userCount: users.length,
+    };
+  }
+
+  public static getDashboardStats(): DashboardStats {
+    const records = this.getRecords();
+    const today = new Date().toISOString().substring(0, 10);
+    const currentYearMonth = today.substring(0, 7);
+
+    const totalRecords = records.length;
+    const totalJudgement = records.filter(r => Boolean(r.judgementDate)).length;
+    const totalDraft = records.filter(r => Boolean(r.draftDate)).length;
+    const totalFinal = records.filter(r => Boolean(r.finalDate)).length;
+    const totalDispatched = records.filter(r => Boolean(r.dispatchDate || r.sendToSectionDate)).length;
+
+    const addedToday = records.filter(r => r.createdAt && r.createdAt.startsWith(today)).length;
+    const addedThisMonth = records.filter(r => r.createdAt && r.createdAt.startsWith(currentYearMonth)).length;
+
+    const draftPending = records.filter(r => Boolean(r.judgementDate) && !r.draftDate).length;
+    const finalPending = records.filter(r => Boolean(r.draftDate) && !r.finalDate).length;
+
+    const latestRecords = [...records]
+      .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
+      .slice(0, 8);
+
+    return {
+      totalRecords,
+      totalJudgement,
+      totalDraft,
+      totalFinal,
+      totalDispatched,
+      addedToday,
+      addedThisMonth,
+      draftPending,
+      finalPending,
+      dispatched: totalDispatched,
+      sentToSection: totalDispatched,
+      latestRecords,
     };
   }
 }

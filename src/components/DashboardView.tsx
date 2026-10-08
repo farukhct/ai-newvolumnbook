@@ -11,6 +11,11 @@ import {
   Search,
   ArrowRight,
   TrendingUp,
+  Scale,
+  FileCheck,
+  FileEdit,
+  Truck,
+  AlertCircle,
 } from 'lucide-react';
 
 interface Props {
@@ -31,26 +36,44 @@ export const DashboardView: React.FC<Props> = ({
 
   // Real SQLite dynamic metrics
   const totalRecords = records.length;
-  
-  const recordsAddedToday = records.filter(
-    r => r.createdAt && r.createdAt.startsWith(today)
+
+  // Exact milestone totals requested:
+  // Total Judgement, Total Draft, Total Final, Total Dispatched
+  const totalJudgement = records.filter(
+    (r) => Boolean(r.judgementDate)
   ).length;
 
-  const recordsAddedThisMonth = records.filter(
-    r => r.createdAt && r.createdAt.startsWith(currentYearMonth)
+  const totalDraft = records.filter(
+    (r) => Boolean(r.draftDate)
   ).length;
 
-  // Milestone workflow calculations
+  const totalFinal = records.filter(
+    (r) => Boolean(r.finalDate)
+  ).length;
+
+  const totalDispatched = records.filter(
+    (r) => Boolean(r.dispatchDate || r.sendToSectionDate)
+  ).length;
+
+  // Pipeline pending counts
   const draftPending = records.filter(
-    r => Boolean(r.judgementDate) && !r.draftDate
+    (r) => Boolean(r.judgementDate) && !r.draftDate
   ).length;
 
   const finalPending = records.filter(
-    r => Boolean(r.draftDate) && !r.finalDate
+    (r) => Boolean(r.draftDate) && !r.finalDate
   ).length;
 
-  const dispatched = records.filter(
-    r => Boolean(r.dispatchDate || r.sendToSectionDate)
+  const dispatchPending = records.filter(
+    (r) => Boolean(r.finalDate) && !Boolean(r.dispatchDate || r.sendToSectionDate)
+  ).length;
+
+  const recordsAddedToday = records.filter(
+    (r) => r.createdAt && r.createdAt.startsWith(today)
+  ).length;
+
+  const recordsAddedThisMonth = records.filter(
+    (r) => r.createdAt && r.createdAt.startsWith(currentYearMonth)
   ).length;
 
   // Recent records sorted by creation or updated date
@@ -86,123 +109,202 @@ export const DashboardView: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Dynamic Metric Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-        {/* Total Records */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-medium">Total Records</span>
-            <FileText className="w-4 h-4 text-blue-400" />
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-white font-mono">{totalRecords}</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Recorded in SQLite</div>
-          </div>
+      {/* Primary Milestone Totals Banner: Total Judgement, Total Draft, Total Final, Total Dispatched */}
+      <div>
+        <div className="flex items-center justify-between mb-2.5">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Case Volume Milestones & Totals
+          </h2>
+          <span className="text-[11px] text-slate-500">SQLite Volume Ledger Metrics</span>
         </div>
 
-        {/* Added Today */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-medium">Added Today</span>
-            <Calendar className="w-4 h-4 text-emerald-400" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+          {/* Total Records */}
+          <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm flex flex-col justify-between hover:border-slate-700 transition-colors">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-xs font-medium">Total Records</span>
+              <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400">
+                <FileText className="w-4 h-4" />
+              </div>
+            </div>
+            <div>
+              <div className="text-2xl sm:text-3xl font-bold text-white font-mono">{totalRecords}</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">All registered cases</div>
+            </div>
           </div>
-          <div>
-            <div className="text-2xl font-bold text-emerald-400 font-mono">{recordsAddedToday}</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Daily input count</div>
-          </div>
-        </div>
 
-        {/* Added This Month */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-medium">This Month</span>
-            <TrendingUp className="w-4 h-4 text-indigo-400" />
+          {/* Total Judgement */}
+          <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm flex flex-col justify-between hover:border-emerald-500/40 transition-colors">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-xs font-medium text-emerald-300">Total Judgement</span>
+              <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+                <Scale className="w-4 h-4" />
+              </div>
+            </div>
+            <div>
+              <div className="text-2xl sm:text-3xl font-bold text-emerald-400 font-mono">{totalJudgement}</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">Judgements recorded</div>
+            </div>
           </div>
-          <div>
-            <div className="text-2xl font-bold text-indigo-400 font-mono">{recordsAddedThisMonth}</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Current month entries</div>
-          </div>
-        </div>
 
-        {/* Draft Pending */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-medium">Draft Pending</span>
-            <Clock className="w-4 h-4 text-amber-400" />
+          {/* Total Draft */}
+          <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm flex flex-col justify-between hover:border-amber-500/40 transition-colors">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-xs font-medium text-amber-300">Total Draft</span>
+              <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">
+                <FileEdit className="w-4 h-4" />
+              </div>
+            </div>
+            <div>
+              <div className="text-2xl sm:text-3xl font-bold text-amber-400 font-mono">{totalDraft}</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">Drafts prepared</div>
+            </div>
           </div>
-          <div>
-            <div className="text-2xl font-bold text-amber-400 font-mono">{draftPending}</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Awaiting draft</div>
-          </div>
-        </div>
 
-        {/* Final Pending */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-medium">Final Pending</span>
-            <CheckCircle2 className="w-4 h-4 text-purple-400" />
+          {/* Total Final */}
+          <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm flex flex-col justify-between hover:border-purple-500/40 transition-colors">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-xs font-medium text-purple-300">Total Final</span>
+              <div className="p-1.5 rounded-lg bg-purple-500/10 text-purple-400">
+                <FileCheck className="w-4 h-4" />
+              </div>
+            </div>
+            <div>
+              <div className="text-2xl sm:text-3xl font-bold text-purple-400 font-mono">{totalFinal}</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">Finalized orders</div>
+            </div>
           </div>
-          <div>
-            <div className="text-2xl font-bold text-purple-400 font-mono">{finalPending}</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Awaiting final date</div>
-          </div>
-        </div>
 
-        {/* Dispatched */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-medium">Dispatched</span>
-            <Send className="w-4 h-4 text-cyan-400" />
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-cyan-400 font-mono">{dispatched}</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Dispatched cases</div>
+          {/* Total Dispatched */}
+          <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm flex flex-col justify-between hover:border-cyan-500/40 transition-colors col-span-2 sm:col-span-1">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-xs font-medium text-cyan-300">Total Dispatched</span>
+              <div className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400">
+                <Send className="w-4 h-4" />
+              </div>
+            </div>
+            <div>
+              <div className="text-2xl sm:text-3xl font-bold text-cyan-400 font-mono">{totalDispatched}</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">Dispatched to section</div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Workflow Stage Distribution Bar */}
+      {/* Secondary Operational Pipeline & Activity Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        {/* Added Today */}
+        <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-lg flex items-center justify-between">
+          <div>
+            <div className="text-[11px] text-slate-400 font-medium">Added Today</div>
+            <div className="text-lg font-bold text-emerald-400 font-mono">{recordsAddedToday}</div>
+          </div>
+          <Calendar className="w-4 h-4 text-emerald-400/80" />
+        </div>
+
+        {/* Added This Month */}
+        <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-lg flex items-center justify-between">
+          <div>
+            <div className="text-[11px] text-slate-400 font-medium">Added This Month</div>
+            <div className="text-lg font-bold text-indigo-400 font-mono">{recordsAddedThisMonth}</div>
+          </div>
+          <TrendingUp className="w-4 h-4 text-indigo-400/80" />
+        </div>
+
+        {/* Draft Pending */}
+        <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-lg flex items-center justify-between">
+          <div>
+            <div className="text-[11px] text-slate-400 font-medium">Draft Pending</div>
+            <div className="text-lg font-bold text-amber-400 font-mono">{draftPending}</div>
+          </div>
+          <Clock className="w-4 h-4 text-amber-400/80" />
+        </div>
+
+        {/* Final Pending */}
+        <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-lg flex items-center justify-between">
+          <div>
+            <div className="text-[11px] text-slate-400 font-medium">Final Pending</div>
+            <div className="text-lg font-bold text-purple-400 font-mono">{finalPending}</div>
+          </div>
+          <CheckCircle2 className="w-4 h-4 text-purple-400/80" />
+        </div>
+
+        {/* Dispatch Pending */}
+        <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-lg flex items-center justify-between col-span-2 sm:col-span-1">
+          <div>
+            <div className="text-[11px] text-slate-400 font-medium">Dispatch Pending</div>
+            <div className="text-lg font-bold text-rose-400 font-mono">{dispatchPending}</div>
+          </div>
+          <AlertCircle className="w-4 h-4 text-rose-400/80" />
+        </div>
+      </div>
+
+      {/* Workflow Milestone Progress Bar */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm text-slate-200">
         <div className="flex items-center justify-between mb-3">
-          <div className="font-semibold text-sm text-white">Workflow Milestone Progress</div>
-          <div className="text-xs text-slate-400">Total Cases: {totalRecords}</div>
+          <div className="font-semibold text-sm text-white">Workflow Milestone Distribution</div>
+          <div className="text-xs text-slate-400 font-mono">Total Cases: {totalRecords}</div>
         </div>
-        
+
         {totalRecords === 0 ? (
           <div className="text-xs text-slate-400 italic py-2">
-            Database currently has zero volume records. No workflow milestones yet.
+            Database currently has zero volume records. Enter cases to view workflow milestone progress.
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden flex">
+            <div className="h-3.5 w-full bg-slate-800 rounded-full overflow-hidden flex">
               <div
-                style={{ width: `${totalRecords ? (dispatched / totalRecords) * 100 : 0}%` }}
-                className="bg-cyan-500 h-full"
-                title={`Dispatched: ${dispatched}`}
+                style={{ width: `${totalRecords ? (totalDispatched / totalRecords) * 100 : 0}%` }}
+                className="bg-cyan-500 h-full transition-all duration-300"
+                title={`Total Dispatched: ${totalDispatched}`}
               />
               <div
-                style={{ width: `${totalRecords ? (finalPending / totalRecords) * 100 : 0}%` }}
-                className="bg-purple-500 h-full"
-                title={`Final Pending: ${finalPending}`}
+                style={{ width: `${totalRecords ? (Math.max(0, totalFinal - totalDispatched) / totalRecords) * 100 : 0}%` }}
+                className="bg-purple-500 h-full transition-all duration-300"
+                title={`Final Pending Dispatch: ${Math.max(0, totalFinal - totalDispatched)}`}
               />
               <div
-                style={{ width: `${totalRecords ? (draftPending / totalRecords) * 100 : 0}%` }}
-                className="bg-amber-500 h-full"
-                title={`Draft Pending: ${draftPending}`}
+                style={{ width: `${totalRecords ? (Math.max(0, totalDraft - totalFinal) / totalRecords) * 100 : 0}%` }}
+                className="bg-amber-500 h-full transition-all duration-300"
+                title={`Draft Pending Final: ${Math.max(0, totalDraft - totalFinal)}`}
+              />
+              <div
+                style={{ width: `${totalRecords ? (Math.max(0, totalJudgement - totalDraft) / totalRecords) * 100 : 0}%` }}
+                className="bg-emerald-500 h-full transition-all duration-300"
+                title={`Judgement Pending Draft: ${Math.max(0, totalJudgement - totalDraft)}`}
               />
             </div>
-            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-cyan-500"></span>
-                <span>Dispatched ({dispatched})</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-300 pt-1">
+              <div className="flex items-center gap-2 bg-slate-950/40 p-2 rounded-lg border border-slate-800/60">
+                <span className="w-3 h-3 rounded-full bg-emerald-500 shrink-0"></span>
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase font-medium">Total Judgement</div>
+                  <div className="font-bold text-white font-mono">{totalJudgement} <span className="text-[10px] text-slate-500 font-normal">({totalRecords ? Math.round((totalJudgement / totalRecords) * 100) : 0}%)</span></div>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
-                <span>Final Pending ({finalPending})</span>
+
+              <div className="flex items-center gap-2 bg-slate-950/40 p-2 rounded-lg border border-slate-800/60">
+                <span className="w-3 h-3 rounded-full bg-amber-500 shrink-0"></span>
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase font-medium">Total Draft</div>
+                  <div className="font-bold text-white font-mono">{totalDraft} <span className="text-[10px] text-slate-500 font-normal">({totalRecords ? Math.round((totalDraft / totalRecords) * 100) : 0}%)</span></div>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                <span>Draft Pending ({draftPending})</span>
+
+              <div className="flex items-center gap-2 bg-slate-950/40 p-2 rounded-lg border border-slate-800/60">
+                <span className="w-3 h-3 rounded-full bg-purple-500 shrink-0"></span>
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase font-medium">Total Final</div>
+                  <div className="font-bold text-white font-mono">{totalFinal} <span className="text-[10px] text-slate-500 font-normal">({totalRecords ? Math.round((totalFinal / totalRecords) * 100) : 0}%)</span></div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 bg-slate-950/40 p-2 rounded-lg border border-slate-800/60">
+                <span className="w-3 h-3 rounded-full bg-cyan-500 shrink-0"></span>
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase font-medium">Total Dispatched</div>
+                  <div className="font-bold text-white font-mono">{totalDispatched} <span className="text-[10px] text-slate-500 font-normal">({totalRecords ? Math.round((totalDispatched / totalRecords) * 100) : 0}%)</span></div>
+                </div>
               </div>
             </div>
           </div>
@@ -242,7 +344,7 @@ export const DashboardView: React.FC<Props> = ({
                   <th className="py-2.5 px-4">Serial No</th>
                   <th className="py-2.5 px-4">Case No</th>
                   <th className="py-2.5 px-4">Result</th>
-                  <th className="py-2.5 px-4">Judgement</th>
+                  <th className="py-2.5 px-4">Judgement Date</th>
                   <th className="py-2.5 px-4">Draft Date</th>
                   <th className="py-2.5 px-4">Final Date</th>
                   <th className="py-2.5 px-4">Dispatch Date</th>
@@ -258,7 +360,15 @@ export const DashboardView: React.FC<Props> = ({
                   >
                     <td className="py-2.5 px-4 font-mono font-medium text-white">{r.serialNo}</td>
                     <td className="py-2.5 px-4 font-medium text-blue-400">{r.caseNo}</td>
-                    <td className="py-2.5 px-4 font-medium text-slate-200">{r.result || '-'}</td>
+                    <td className="py-2.5 px-4 font-medium text-slate-200">
+                      {r.result ? (
+                        <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-200 font-medium">
+                          {r.result}
+                        </span>
+                      ) : (
+                        <span className="text-slate-500">-</span>
+                      )}
+                    </td>
                     <td className="py-2.5 px-4">{toDisplayDate(r.judgementDate) || '-'}</td>
                     <td className="py-2.5 px-4">{toDisplayDate(r.draftDate) || '-'}</td>
                     <td className="py-2.5 px-4">{toDisplayDate(r.finalDate) || '-'}</td>

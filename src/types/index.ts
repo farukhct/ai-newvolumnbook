@@ -63,6 +63,10 @@ export interface FilterCriteria {
 
 export interface DashboardStats {
   totalRecords: number;
+  totalJudgement: number;
+  totalDraft: number;
+  totalFinal: number;
+  totalDispatched: number;
   addedToday: number;
   addedThisMonth: number;
   draftPending: number;
